@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.softtech.traductorbraille.executable"},{"l":"com.softtech.traductorbraille.GUI"}];updateSearchResults();

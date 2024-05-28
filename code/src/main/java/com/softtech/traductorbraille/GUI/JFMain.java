@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.softtech.traductorbraille.GUI;
 
 /**
@@ -62,6 +58,9 @@ public class JFMain extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Un botón para realizar una acción en la interfaz.
+     */
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         this.jTextField1.setText("ESTA ES UNA PRUEBA DE JAVA CON MAVEN");
     }//GEN-LAST:event_jButton1ActionPerformed

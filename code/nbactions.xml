@@ -9,4 +9,12 @@
                 <goal>package</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-mvn javadoc</actionName>
+            <displayName>mvn javadoc</displayName>
+            <goals>
+                <goal>clean javadoc:javadoc</goal>
+                <goal>package javadoc:javadoc</goal>
+            </goals>
+        </action>
     </actions>
