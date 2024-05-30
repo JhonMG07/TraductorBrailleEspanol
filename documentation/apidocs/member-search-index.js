@@ -1,1 +1,0 @@
-memberSearchIndex = [{"p":"com.softtech.traductorbraille.GUI","c":"JFMain","l":"JFMain()","u":"%3Cinit%3E()"},{"p":"com.softtech.traductorbraille.executable","c":"MainClass","l":"main(String[])","u":"main(java.lang.String[])"},{"p":"com.softtech.traductorbraille.executable","c":"MainClass","l":"MainClass()","u":"%3Cinit%3E()"}];updateSearchResults();

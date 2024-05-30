@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.softtech.traductorbraille.GUI","l":"JFMain"},{"p":"com.softtech.traductorbraille.executable","l":"MainClass"}];updateSearchResults();
