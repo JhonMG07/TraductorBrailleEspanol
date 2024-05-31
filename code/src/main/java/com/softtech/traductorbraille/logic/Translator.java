@@ -1,6 +1,8 @@
 package com.softtech.traductorbraille.logic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,7 +64,7 @@ public class Translator {
         brailleMap.put("26", "?");
         brailleMap.put("126", "(");
         brailleMap.put("345", ")");
-        brailleMap.put("124", "+");
+        brailleMap.put("235", "+");
         brailleMap.put("236", "*");
         brailleMap.put("2356", "=");
         brailleMap.put("256", "/");
@@ -79,71 +81,30 @@ public class Translator {
         brailleMap.put("3456 24", "9");
         brailleMap.put("3456 245", "0");
 
-        // Crear el mapa inverso
+        createUppercaseAlphabet();
+        createReverseMap();
+    }
+
+    private static void createUppercaseAlphabet() {
+        Map<String, String> auxiliaryMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : brailleMap.entrySet()) {
+            if (Character.isLetter(entry.getValue().charAt(0))) {
+                String uppercaseValue = entry.getValue().toUpperCase();
+                auxiliaryMap.put("46 " + entry.getKey(), uppercaseValue);
+            }
+        }
+        brailleMap.putAll(auxiliaryMap);
+    }
+
+    private static void createReverseMap() {
         for (Map.Entry<String, String> entry : brailleMap.entrySet()) {
             if (!entry.getKey().isEmpty()) {
                 reverseBrailleMap.put(entry.getValue(), entry.getKey());
-
-                // Agregar también las versiones mayúsculas si son letras
-                if (Character.isLetter(entry.getValue().charAt(0))) {
-                    String uppercaseValue = entry.getValue().toUpperCase();
-                    reverseBrailleMap.put(uppercaseValue, entry.getKey());
-                }
             }
         }
     }
-
-    public static String translateToSpanish(String brailleText) {
-        StringBuilder translatedText = new StringBuilder();
-        String[] cells = brailleText.split(" ");
-        for (String cell : cells) {
-            String translatedChar = brailleMap.getOrDefault(cell, "?");
-            translatedText.append(translatedChar);
-        }
-        return translatedText.toString();
-    }
-
-    public static String toBrailleUnicode(String brailleText) {
-        StringBuilder brailleUnicode = new StringBuilder();
-        String[] cells = brailleText.split(" ");
-        for (String cell : cells) {
-            brailleUnicode.append(brailleCharFromDots(cell));
-        }
-        return brailleUnicode.toString();
-    }
-
-    public static String translateToBraille(String spanishText) {
-        StringBuilder brailleText = new StringBuilder();
-        // Flag para saber si hay una secuencia de números
-        boolean isNumber = false; 
-        for (char ch : spanishText.toCharArray()) {
-            String brailleChar = reverseBrailleMap.getOrDefault(String.valueOf(ch), "");
-            if (!brailleChar.isEmpty()) {
-                // Verifica si se trata de mayusculas
-                if (Character.isUpperCase(ch)) {
-                    brailleText.append("⠨");
-                }
-                // Verifica si es un dígito
-                if (Character.isDigit(ch)) {
-                    if (!isNumber) {
-                        brailleText.append("⠼ ");
-                        isNumber = true;
-                    }
-                    brailleText.append(brailleCharFromDots(brailleChar)).append(" ");
-                } else {
-                    brailleText.append(brailleCharFromDots(brailleChar)).append(" ");
-                }
-            } else {
-                // Caracter no encontrado
-                brailleText.append("  ");
-                isNumber = false;
-            }
-            
-        }
-        return brailleText.toString().trim();
-    }
-
-    private static char brailleCharFromDots(String dots) {
+    
+    private char brailleCharFromSegment(String dots) {
         int baseUnicode = 0x2800;
         int brailleValue = 0;
         for (char dot : dots.toCharArray()) {
@@ -166,4 +127,59 @@ public class Translator {
         }
         return (char) (baseUnicode + brailleValue);
     }
+
+    public String translateToSpanish(String brailleText) {
+        StringBuilder translatedText = new StringBuilder();
+        String[] cells = brailleText.split(" ");
+        for (String cell : cells) {
+            String translatedChar = brailleMap.getOrDefault(cell, "?");
+            translatedText.append(translatedChar);
+        }
+        return translatedText.toString();
+    }
+
+    private List<Character> brailleCharsFromDots(String dots) {
+        List<Character> brailleChars = new ArrayList<>();
+        String[] segments = dots.split(" ");
+        for (String segment : segments) {
+            if (!segment.isEmpty()) {
+                brailleChars.add(brailleCharFromSegment(segment));
+            }
+        }
+        return brailleChars;
+    }
+
+    public String translateToBraille(String spanishText) {
+        StringBuilder brailleText = new StringBuilder();
+        // Flag para saber si hay una secuencia de números
+        boolean isNumber = false;
+        for (char ch : spanishText.toCharArray()) {
+            String brailleChar = reverseBrailleMap.getOrDefault(String.valueOf(ch), "");
+            if (!brailleChar.isEmpty()) {
+                List<Character> result = brailleCharsFromDots(brailleChar);
+                // Verifica si es un dígito
+                if (Character.isDigit(ch) || ch == '.' || ch == ',') {
+                    if (isNumber && Character.isDigit(ch)) {
+                        result.remove(0);
+                    } else {
+                        isNumber = true;
+                    }
+                } else {
+                    isNumber = false;
+                }
+                addCharacterToTraduction(result, brailleText);
+            } else {
+                brailleText.append("  ");
+                isNumber = false;
+            }
+        }
+        return brailleText.toString().trim();
+    }
+
+    private void addCharacterToTraduction(List<Character> characters, StringBuilder text) {
+        for (char element : characters) {
+            text.append(element).append(" ");
+        }
+    }
+
 }
