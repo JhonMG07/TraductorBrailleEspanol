@@ -1,6 +1,7 @@
 package com.softtech.traductorbraille.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class Translator {
             }
         }
     }
-    
+
     private char brailleCharFromSegment(String dots) {
         int baseUnicode = 0x2800;
         int brailleValue = 0;
@@ -130,10 +131,22 @@ public class Translator {
 
     public String translateToSpanish(String brailleText) {
         StringBuilder translatedText = new StringBuilder();
-        String[] cells = brailleText.split(" ");
+        String[] cells = brailleText.split("  "); //Separar en palabras
+        //Separar por letras y valores numericos 
         for (String cell : cells) {
-            String translatedChar = brailleMap.getOrDefault(cell, "?");
-            translatedText.append(translatedChar);
+            String[] words = cell.split(" ");
+            for (int i = 0; i < words.length; i++) {
+                String translatedChar;
+                String auxiliary = words[i];
+                if (words[i].equals("46") || words[i].equals("3456")) {
+                    auxiliary = words[i] + " " + words[i + 1];
+                    i++;
+                }
+                translatedChar = brailleMap.getOrDefault(auxiliary, "?");
+
+                translatedText.append(translatedChar);
+            }
+            translatedText.append(" ");
         }
         return translatedText.toString();
     }
@@ -167,7 +180,7 @@ public class Translator {
                 } else {
                     isNumber = false;
                 }
-                addCharacterToTraduction(result, brailleText);
+                addCharacterToText(result, brailleText);
             } else {
                 brailleText.append("  ");
                 isNumber = false;
@@ -176,10 +189,22 @@ public class Translator {
         return brailleText.toString().trim();
     }
 
-    private void addCharacterToTraduction(List<Character> characters, StringBuilder text) {
+    private void addCharacterToText(List<Character> characters, StringBuilder text) {
         for (char element : characters) {
             text.append(element).append(" ");
         }
+    }
+
+    public String brailleToUnicode(String brailleText) {
+        StringBuilder quadratsString = new StringBuilder();
+        String[] words = brailleText.split("");
+        for (String word : words) {
+            List<Character> quadrats = brailleCharsFromDots(word);
+            addCharacterToText(quadrats, quadratsString);
+            quadratsString.append("  ");
+        }
+
+        return quadratsString.toString();
     }
 
 }

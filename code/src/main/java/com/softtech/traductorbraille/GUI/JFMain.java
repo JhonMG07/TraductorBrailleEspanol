@@ -95,7 +95,7 @@ public class JFMain extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Translator trans = new Translator();
         String espanol = this.jTASpanish.getText();
-        this.jTBraille.setText(trans.translateToBraille(espanol));
+        this.jTBraille.setText(trans.translateToSpanish(espanol));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
