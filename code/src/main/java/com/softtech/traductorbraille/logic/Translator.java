@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  *
- * @author Isma2
+ * @author SoftTech
  */
 public class Translator {
 
@@ -18,7 +18,9 @@ public class Translator {
     static {
         // Representación de las letras en Braille usando combinaciones de números del 1 al 6
         // Espacio
-        brailleMap.put("", " ");
+        brailleMap.put("\t", "\t");
+        brailleMap.put("  ", " ");
+        brailleMap.put("\n", "\n");
         // Alfabeto
         brailleMap.put("1", "a");
         brailleMap.put("12", "b");
@@ -40,7 +42,7 @@ public class Translator {
         brailleMap.put("1235", "r");
         brailleMap.put("234", "s");
         brailleMap.put("2345", "t");
-        brailleMap.put("156", "u");
+        brailleMap.put("136", "u");
         brailleMap.put("1236", "v");
         brailleMap.put("2456", "w");
         brailleMap.put("1346", "x");
@@ -59,10 +61,13 @@ public class Translator {
         brailleMap.put("2", ",");
         brailleMap.put("23", ";");
         brailleMap.put("25", ":");
-        brailleMap.put("36", "-");
-        brailleMap.put("236", "\"");
-        brailleMap.put("235", "!");
+        brailleMap.put("36", "_");
+        brailleMap.put("63", "-");
+        brailleMap.put("632", "\"");
+        brailleMap.put("532", "!");
+        brailleMap.put("325", "¡");
         brailleMap.put("26", "?");
+        brailleMap.put("62", "¿");
         brailleMap.put("126", "(");
         brailleMap.put("345", ")");
         brailleMap.put("235", "+");
@@ -151,7 +156,7 @@ public class Translator {
         return translatedText.toString();
     }
 
-    private List<Character> brailleCharsFromDots(String dots) {
+    private List<Character> brailleCodeToQuadratin(String dots) {
         List<Character> brailleChars = new ArrayList<>();
         String[] segments = dots.split(" ");
         for (String segment : segments) {
@@ -164,29 +169,43 @@ public class Translator {
 
     public String translateToBraille(String spanishText) {
         StringBuilder brailleText = new StringBuilder();
-        // Flag para saber si hay una secuencia de números
         boolean isNumber = false;
-        for (char ch : spanishText.toCharArray()) {
-            String brailleChar = reverseBrailleMap.getOrDefault(String.valueOf(ch), "");
-            if (!brailleChar.isEmpty()) {
-                List<Character> result = brailleCharsFromDots(brailleChar);
-                // Verifica si es un dígito
-                if (Character.isDigit(ch) || ch == '.' || ch == ',') {
-                    if (isNumber && Character.isDigit(ch)) {
-                        result.remove(0);
-                    } else {
-                        isNumber = true;
-                    }
-                } else {
-                    isNumber = false;
-                }
-                addCharacterToText(result, brailleText);
-            } else {
-                brailleText.append("  ");
-                isNumber = false;
+        char[] spanishTextArray = spanishText.toCharArray();
+        
+        for (char ch : spanishTextArray) {
+            String brailleValue = getBrailleValue(ch);
+
+            if (isWhitespace(ch)) {
+                brailleText.append(brailleValue);
+            } else if (!brailleValue.isEmpty()) {
+                List<Character> brailleChars = brailleCodeToQuadratin(brailleValue);
+                isNumber = handleNumberSequence(ch, isNumber, brailleChars);
+                addCharacterToText(brailleChars, brailleText);
             }
         }
+
         return brailleText.toString().trim();
+    }
+
+    private String getBrailleValue(char ch) {
+        return reverseBrailleMap.getOrDefault(String.valueOf(ch), "");
+    }
+
+    private boolean isWhitespace(char ch) {
+        return ch == ' ' || ch == '\n' || ch == '\t';
+    }
+
+    private boolean handleNumberSequence(char ch, boolean isNumber, List<Character> brailleChars) {
+        if (Character.isDigit(ch) || ch == '.' || ch == ',') {
+            if (isNumber && Character.isDigit(ch)) {
+                brailleChars.remove(0);
+            } else {
+                isNumber = true;
+            }
+        } else {
+            isNumber = false;
+        }
+        return isNumber;
     }
 
     private void addCharacterToText(List<Character> characters, StringBuilder text) {
@@ -199,7 +218,7 @@ public class Translator {
         StringBuilder quadratsString = new StringBuilder();
         String[] words = brailleText.split("");
         for (String word : words) {
-            List<Character> quadrats = brailleCharsFromDots(word);
+            List<Character> quadrats = brailleCodeToQuadratin(word);
             addCharacterToText(quadrats, quadratsString);
             quadratsString.append("  ");
         }
