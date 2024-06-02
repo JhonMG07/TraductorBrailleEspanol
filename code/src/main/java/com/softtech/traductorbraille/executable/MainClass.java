@@ -1,6 +1,6 @@
 package com.softtech.traductorbraille.executable;
 
-import com.softtech.traductorbraille.GUI.JFMain;
+import com.softtech.traductorbraille.GUI.JFTranslator;
 
 /**
  * La clase principal que inicia la aplicación.
@@ -21,7 +21,7 @@ public class MainClass {
      * @param args los argumentos de la línea de comandos. Actualmente no se utilizan.
      */
     public static void main(String[] args) {
-        JFMain jfmain = new JFMain();
-        jfmain.setVisible(true);
+        JFTranslator translator = new JFTranslator();
+        translator.setVisible(true);
     }
 }
