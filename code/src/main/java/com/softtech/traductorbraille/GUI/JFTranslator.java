@@ -275,6 +275,11 @@ public class JFTranslator extends javax.swing.JFrame {
 
         jMExportar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMExportar.setText("Exportar");
+        jMExportar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMExportarActionPerformed(evt);
+            }
+        });
         jMFile.add(jMExportar);
 
         jMImprimir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_DOWN_MASK));
@@ -582,6 +587,12 @@ public class JFTranslator extends javax.swing.JFrame {
     private void braillePanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_braillePanelMouseClicked
         requestFocusInWindow();
     }//GEN-LAST:event_braillePanelMouseClicked
+
+    private void jMExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMExportarActionPerformed
+        String texto = jTBraille.getText(); // Obtener el texto del JTextArea
+        JFExport exportFrame = new JFExport(texto); // Crear una instancia de JFExport
+        exportFrame.setVisible(true); // Hacer visible la ventana de exportación
+    }//GEN-LAST:event_jMExportarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel braillePanel;
