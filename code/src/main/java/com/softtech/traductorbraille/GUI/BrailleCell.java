@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package com.softtech.traductorbraille.GUI;
 
 import javax.swing.*;
@@ -16,7 +12,7 @@ public class BrailleCell extends javax.swing.JPanel {
     private boolean[] points = new boolean[6];
 
     public BrailleCell() {
-        setSize(100, 150);
+        setSize(54, 88);
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
@@ -43,14 +39,25 @@ public class BrailleCell extends javax.swing.JPanel {
         int cellWidth = getWidth() / 2; // Dividir el ancho del panel en dos partes iguales
         int cellHeight = getHeight() / 3; // Dividir la altura del panel en tres partes iguales
 
+        // Números a pintar dentro de los círculos
+        String[] numbers = {"1", "4", "2", "5", "3", "6"};
+
         for (int i = 0; i < 6; i++) {
             int x = (i % 2) * cellWidth + cellWidth / 4; // Centrar el círculo horizontalmente
             int y = (i / 2) * cellHeight + cellHeight / 4; // Centrar el círculo verticalmente
+
+            // Dibujar el círculo
             if (points[i]) {
                 g.fillOval(x, y, cellWidth / 2, cellHeight / 2); // Ajustar el tamaño del círculo al tamaño de la celda
             } else {
                 g.drawOval(x, y, cellWidth / 2, cellHeight / 2); // Ajustar el tamaño del círculo al tamaño de la celda
             }
+
+            // Dibujar el número dentro del círculo
+            FontMetrics fm = g.getFontMetrics();
+            int stringWidth = fm.stringWidth(numbers[i]);
+            int stringHeight = fm.getAscent();
+            g.drawString(numbers[i], x + (cellWidth / 4) - (stringWidth / 2), y + (cellHeight / 4) + (stringHeight / 2));
         }
     }
 
