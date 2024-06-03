@@ -220,7 +220,7 @@ public class Translator {
         for (String word : words) {
             List<Character> quadrats = brailleCodeToQuadratin(word);
             addCharacterToText(quadrats, quadratsString);
-            quadratsString.append("  ");
+            quadratsString.append("");
         }
 
         return quadratsString.toString();
