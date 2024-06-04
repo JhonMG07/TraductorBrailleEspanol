@@ -377,7 +377,6 @@ public class JFTranslator extends javax.swing.JFrame {
         } else if (keyCode == KeyEvent.VK_SPACE) {
             // Añadir espacio para nueva palabra
             addSpace();
-            System.out.println(this.traduccionBrailleTotal);
         }
     }
 
