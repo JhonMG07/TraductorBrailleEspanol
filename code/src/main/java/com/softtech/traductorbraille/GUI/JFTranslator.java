@@ -75,6 +75,11 @@ public class JFTranslator extends javax.swing.JFrame {
         jTASpanish.setWrapStyleWord(true);
         jTASpanish.setMinimumSize(new java.awt.Dimension(235, 85));
         jTASpanish.setPreferredSize(new java.awt.Dimension(235, 85));
+        jTASpanish.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTASpanishFocusGained(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTASpanish);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -117,6 +122,11 @@ public class JFTranslator extends javax.swing.JFrame {
         jTBraille.setRows(5);
         jTBraille.setMinimumSize(new java.awt.Dimension(235, 85));
         jTBraille.setPreferredSize(new java.awt.Dimension(235, 85));
+        jTBraille.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTBrailleFocusGained(evt);
+            }
+        });
         jScrollPane2.setViewportView(jTBraille);
 
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
@@ -510,7 +520,7 @@ public class JFTranslator extends javax.swing.JFrame {
             this.setTitle("Brailingo - Traductor: Braille -> Español");
             this.jLBrailleEntrada.setText("Español");
             this.jLEspañolEntrada.setText("Braille");
-            requestFocusInWindow();
+            handleFocusGainedOnBraille();
         } else {
             this.setTitle("Brailingo - Traductor: Español -> Braille");
             this.jLBrailleEntrada.setText("Braille");
@@ -539,11 +549,19 @@ public class JFTranslator extends javax.swing.JFrame {
                         "El modo de mayúscula o número está activado, pero la celda de braille actual está vacía.",
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
+            handleFocusGainedOnBraille();
+        }
+    }
+
+    private void handleFocusGainedOnBraille() {
+        if (!getTranslationMode()) {
+            requestFocusInWindow();
         }
     }
 
     private void jBBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBBorrarActionPerformed
         clearTextFields();
+        handleFocusGainedOnBraille();
     }//GEN-LAST:event_jBBorrarActionPerformed
 
     private void jBTraducirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBTraducirActionPerformed
@@ -560,6 +578,7 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_jBIntercambioActionPerformed
 
     private void jCBMayusculasItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBMayusculasItemStateChanged
+        handleFocusGainedOnBraille();
         if (jCBMayusculas.isSelected()) {
             upperCaseSelect();
             this.jCBNumeros.setSelected(false);
@@ -570,6 +589,7 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_jCBMayusculasItemStateChanged
 
     private void jCBNumerosItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBNumerosItemStateChanged
+        handleFocusGainedOnBraille();
         if (jCBNumeros.isSelected()) {
             numberCaseSelect();
             this.jCBMayusculas.setSelected(false);
@@ -580,8 +600,16 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_jCBNumerosItemStateChanged
 
     private void braillePanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_braillePanelMouseClicked
-        requestFocusInWindow();
+        handleFocusGainedOnBraille();
     }//GEN-LAST:event_braillePanelMouseClicked
+
+    private void jTBrailleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTBrailleFocusGained
+        handleFocusGainedOnBraille();
+    }//GEN-LAST:event_jTBrailleFocusGained
+
+    private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained
+        handleFocusGainedOnBraille();
+    }//GEN-LAST:event_jTASpanishFocusGained
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel braillePanel;
