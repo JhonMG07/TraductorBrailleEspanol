@@ -17,6 +17,8 @@ public class JFTranslator extends javax.swing.JFrame {
     private boolean isNumberMode = false;
     private Translator translator = new Translator();
 
+    String traduccionBrailleTotal = new String();
+
     private static final int[] BRAILLE_INDEX_MAPPING = {0, 2, 4, 1, 3, 5};
     private static final int[] KEY_EVENT_MAPPING = {
         KeyEvent.VK_NUMPAD1, KeyEvent.VK_NUMPAD2, KeyEvent.VK_NUMPAD3,
@@ -372,7 +374,19 @@ public class JFTranslator extends javax.swing.JFrame {
         } else if (keyCode == KeyEvent.VK_ENTER) {
             // Traducción al presionar Enter
             translateText();
+        } else if (keyCode == KeyEvent.VK_SPACE) {
+            // Añadir espacio para nueva palabra
+            addSpace();
+            System.out.println(this.traduccionBrailleTotal);
         }
+    }
+
+    private void addSpace() {
+        this.traduccionBrailleTotal += "  ";
+        this.jTASpanish.append(" ");
+        this.jTBraille.append("⠀");  // Braille space character
+        currentBrailleCell.clearPoints();
+        braillePanel.repaint();
     }
 
     private int findIndexForKeyCode(int keyCode) {
@@ -418,6 +432,7 @@ public class JFTranslator extends javax.swing.JFrame {
 
         String combinedText = targetCellText.toString() + cellText.toString();
         String translatedText = translator.translateToSpanish(combinedText);
+        traduccionBrailleTotal += combinedText;
 
         if (translatedText.equals("?")) {
             JOptionPane.showMessageDialog(this,
