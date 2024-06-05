@@ -615,7 +615,11 @@ public class JFTranslator extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMImprimirActionPerformed
 
-    
+    /**
+     * method to print text traduction
+     * @param content
+     * @throws PrinterException 
+     */
     public void printText(String content) throws PrinterException {
         PrinterJob job = PrinterJob.getPrinterJob();
         job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {

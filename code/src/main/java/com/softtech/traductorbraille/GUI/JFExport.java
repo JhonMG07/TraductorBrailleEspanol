@@ -33,6 +33,7 @@ public class JFExport extends javax.swing.JFrame {
         fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Solo seleccionar directorios
         sizeFont = 26;
+        this.setLocationRelativeTo(null);
     }
 
     private JFExport() {
@@ -63,7 +64,7 @@ public class JFExport extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         ScrollPreview = new javax.swing.JScrollPane();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
