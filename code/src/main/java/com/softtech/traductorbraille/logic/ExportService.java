@@ -38,7 +38,7 @@ public class ExportService {
             default -> throw new IllegalArgumentException("Unsupported format: " + format);
         }
     }*/
-    public void exportBraille(File file, String format, String brailleText) throws FileNotFoundException, IOException {
+    public void exportBraille(File file, String format, String brailleText, int width) throws FileNotFoundException, IOException {
         switch (format.toUpperCase()) {
             case "TXT":
                 exportAsTxt(file, brailleText);
@@ -47,7 +47,7 @@ public class ExportService {
                 exportAsPdf(file, brailleText);
                 break;
             case "PNG":
-                exportAsImage(file, brailleText, format);
+                exportAsImage(file, brailleText, format, width);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported format: " + format);
@@ -75,8 +75,8 @@ public class ExportService {
         }
     }
 
-    private void exportAsImage(File file, String content, String format) throws IOException {
-        BufferedImage bufferedImage = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
+    private void exportAsImage(File file, String content, String format, int width) throws IOException {
+        BufferedImage bufferedImage = new BufferedImage(width, 500, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufferedImage.createGraphics();
         g2d.setFont(new Font("Braille", Font.PLAIN, 20));
         g2d.drawString(content, 20, 20);

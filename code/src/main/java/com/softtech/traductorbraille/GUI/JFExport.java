@@ -7,7 +7,10 @@ package com.softtech.traductorbraille.GUI;
 import com.softtech.traductorbraille.logic.ExportService;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.swing.ImageIcon;
@@ -26,6 +29,8 @@ public class JFExport extends javax.swing.JFrame {
     private final JFileChooser fileChooser;
     private ExportService exportService;
     private int sizeFont;
+    private int widthImg;
+    private int heightImg;
     
     public JFExport(String texto) {
         this.texto = texto;
@@ -34,6 +39,7 @@ public class JFExport extends javax.swing.JFrame {
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Solo seleccionar directorios
         sizeFont = 26;
         this.setLocationRelativeTo(null);
+        calculateImgDimension(texto);
     }
 
     private JFExport() {
@@ -64,7 +70,7 @@ public class JFExport extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         ScrollPreview = new javax.swing.JScrollPane();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
@@ -180,7 +186,7 @@ public class JFExport extends javax.swing.JFrame {
 
         try {
             exportService = new ExportService();
-            exportService.exportBraille(file, formato, texto); // Aquí usamos el texto recibido del primer JFrame
+            exportService.exportBraille(file, formato, texto, widthImg); // Aquí usamos el texto recibido del primer JFrame
             JOptionPane.showMessageDialog(this, "Texto guardado correctamente como " + formato);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + ex.getMessage());
@@ -209,8 +215,18 @@ public class JFExport extends javax.swing.JFrame {
         }
     }
     
+    private void calculateImgDimension(String text){
+        Font font = new Font("SansSerif", Font.PLAIN, sizeFont);
+        FontRenderContext frc = new FontRenderContext(null, true, true);
+        TextLayout layout = new TextLayout(text, font, frc);
+        int textWidth = (int) layout.getBounds().getWidth();
+        int margin = 20;
+        widthImg = textWidth + 2 * margin;
+        heightImg = 500 + 2 * margin;
+    }
+    
     private void previewImage(String content) {
-        BufferedImage bufferedImage = new BufferedImage(600, 500, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bufferedImage = new BufferedImage(heightImg, heightImg, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufferedImage.createGraphics();
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());

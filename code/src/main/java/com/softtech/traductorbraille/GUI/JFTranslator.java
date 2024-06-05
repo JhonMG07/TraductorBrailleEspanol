@@ -9,8 +9,7 @@ import static java.awt.print.Printable.NO_SUCH_PAGE;
 import static java.awt.print.Printable.PAGE_EXISTS;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
