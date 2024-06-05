@@ -5,9 +5,16 @@
 package com.softtech.traductorbraille.GUI;
 
 import com.softtech.traductorbraille.logic.ExportService;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -17,14 +24,15 @@ public class JFExport extends javax.swing.JFrame {
 
     private final String texto;
     private final JFileChooser fileChooser;
-
+    private ExportService exportService;
+    private int sizeFont;
     
     public JFExport(String texto) {
         this.texto = texto;
         initComponents();
         fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Solo seleccionar directorios
-        
+        sizeFont = 26;
     }
 
     private JFExport() {
@@ -53,12 +61,20 @@ public class JFExport extends javax.swing.JFrame {
         jTextFieldNombreArchivo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        ScrollPreview = new javax.swing.JScrollPane();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        jPanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         jLabel1.setText("GUARDAR TRADUCCION");
 
         jComboBoxOpciones.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TXT", "PDF", "PNG" }));
+        jComboBoxOpciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxOpcionesActionPerformed(evt);
+            }
+        });
 
         BotonGuardar.setText("GUARDAR");
         BotonGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -106,6 +122,10 @@ public class JFExport extends javax.swing.JFrame {
                         .addComponent(BotonSeleccionarCarpeta))
                     .addComponent(jLabel3))
                 .addGap(22, 22, 22))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(52, 52, 52)
+                .addComponent(ScrollPreview, javax.swing.GroupLayout.PREFERRED_SIZE, 519, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -122,7 +142,9 @@ public class JFExport extends javax.swing.JFrame {
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(BotonSeleccionarCarpeta)
                     .addComponent(jTextFieldNombreArchivo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(ScrollPreview, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -156,7 +178,7 @@ public class JFExport extends javax.swing.JFrame {
         }
 
         try {
-            ExportService exportService = new ExportService();
+            exportService = new ExportService();
             exportService.exportBraille(file, formato, texto); // Aquí usamos el texto recibido del primer JFrame
             JOptionPane.showMessageDialog(this, "Texto guardado correctamente como " + formato);
         } catch (Exception ex) {
@@ -172,9 +194,49 @@ public class JFExport extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_BotonSeleccionarCarpetaActionPerformed
 
+    private void jComboBoxOpcionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxOpcionesActionPerformed
+        // TODO add your handling code here:
+        generatePreview(texto);
+    }//GEN-LAST:event_jComboBoxOpcionesActionPerformed
+
+    private void generatePreview(String text){
+        switch (jComboBoxOpciones.getSelectedItem().toString()) {
+            case "TXT" -> previewTxt(texto);
+            case "PDF" -> previewTxt(texto);
+            case "PNG" -> previewImage(texto);
+            default -> throw new IllegalArgumentException("Unsupported format: ");
+        }
+    }
+    
+    private void previewImage(String content) {
+        BufferedImage bufferedImage = new BufferedImage(600, 500, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = bufferedImage.createGraphics();
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, sizeFont));
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(content, 20, 40);
+        g2d.dispose();
+        ImageIcon icon = new ImageIcon(bufferedImage);
+        JLabel label = new JLabel(icon);
+        ScrollPreview.setViewportView(label);
+        ScrollPreview.revalidate();
+        ScrollPreview.repaint();
+    }
+
+    private void previewTxt(String content) {
+        JTextArea textArea = new JTextArea(content);
+        textArea.setEditable(false);
+        textArea.setFont(new Font("SansSerif", Font.PLAIN, sizeFont));
+        ScrollPreview.setViewportView(textArea);
+        ScrollPreview.revalidate();
+        ScrollPreview.repaint();
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BotonGuardar;
     private javax.swing.JButton BotonSeleccionarCarpeta;
+    private javax.swing.JScrollPane ScrollPreview;
     private javax.swing.JComboBox<String> jComboBoxOpciones;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 
+
 /**
  *
  * @author USUARIO
@@ -83,4 +84,5 @@ public class ExportService {
         ImageIO.write(bufferedImage, format.toLowerCase(), file);
     }
     
+
 }

@@ -4,6 +4,13 @@ import com.softtech.traductorbraille.logic.Translator;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.print.PageFormat;
+import static java.awt.print.Printable.NO_SUCH_PAGE;
+import static java.awt.print.Printable.PAGE_EXISTS;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -284,6 +291,11 @@ public class JFTranslator extends javax.swing.JFrame {
 
         jMImprimir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMImprimir.setText("Imprimir");
+        jMImprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMImprimirActionPerformed(evt);
+            }
+        });
         jMFile.add(jMImprimir);
 
         jMenuBar1.add(jMFile);
@@ -594,6 +606,40 @@ public class JFTranslator extends javax.swing.JFrame {
         exportFrame.setVisible(true); // Hacer visible la ventana de exportación
     }//GEN-LAST:event_jMExportarActionPerformed
 
+    private void jMImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMImprimirActionPerformed
+        try {
+            // TODO add your handling code here:
+            printText(translator.generateBrailleMirror(jTBraille.getText()));
+        } catch (PrinterException ex) {
+            System.out.println("Error: "+ ex.getMessage());
+        }
+    }//GEN-LAST:event_jMImprimirActionPerformed
+
+    
+    public void printText(String content) throws PrinterException {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
+            if (pageIndex > 0) {
+                return NO_SUCH_PAGE;
+            }
+            Graphics2D g2d = (Graphics2D) graphics;
+            g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 32));
+            g2d.setColor(Color.BLACK);
+            int lineHeight = g2d.getFontMetrics().getHeight();
+            int y1 = 0;
+            for (String line : content.split("\n")) {
+                y1 += lineHeight;
+                g2d.drawString(line, 50, y1);
+            }
+            return PAGE_EXISTS;
+        });
+        // Mostrar el cuadro de diálogo de impresión
+        if (job.printDialog()) {
+            job.print();
+        }
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel braillePanel;
     private javax.swing.JButton jBBorrar;

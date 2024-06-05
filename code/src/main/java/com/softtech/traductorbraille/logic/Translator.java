@@ -14,7 +14,7 @@ public class Translator {
 
     private static final Map<String, String> brailleMap = new HashMap<>();
     private static final Map<String, String> reverseBrailleMap = new HashMap<>();
-
+    private static final Map<Character, Character> brailleMirrorMap = new HashMap<>();
     static {
         // Representación de las letras en Braille usando combinaciones de números del 1 al 6
         // Espacio
@@ -86,7 +86,53 @@ public class Translator {
         brailleMap.put("3456 125", "8");
         brailleMap.put("3456 24", "9");
         brailleMap.put("3456 245", "0");
-
+        
+        //Mirror Braille
+        brailleMirrorMap.put('⠁', '⠈'); // a 
+        brailleMirrorMap.put('⠃', '⠘'); // b 
+        brailleMirrorMap.put('⠉', '⠉'); // c 
+        brailleMirrorMap.put('⠙', '⠋'); // d 
+        brailleMirrorMap.put('⠑', '⠊'); // e 
+        brailleMirrorMap.put('⠋', '⠙'); // f 
+        brailleMirrorMap.put('⠦', '⠴'); // h 
+        brailleMirrorMap.put('⠊', '⠑'); // i
+        brailleMirrorMap.put('⠚', '⠓');// j
+        brailleMirrorMap.put('⠓', '⠚'); // h 
+        brailleMirrorMap.put('⠅', '⠨'); // k        
+        brailleMirrorMap.put('⠇','⠸');   //l             
+        brailleMirrorMap.put('⠍', '⠩'); // m 
+        brailleMirrorMap.put('⠝', '⠫'); // n 
+        brailleMirrorMap.put('⠕', '⠪'); // o 
+        brailleMirrorMap.put('⠏', '⠹'); // p
+        brailleMirrorMap.put('⠟','⠻');//q
+        brailleMirrorMap.put('⠗', '⠺'); // r 
+        brailleMirrorMap.put('⠎', '⠱'); // s
+        brailleMirrorMap.put('⠞','⠳');//t
+        brailleMirrorMap.put('⠥', '⠬'); // u *
+        brailleMirrorMap.put('⠧', '⠼'); // v
+        brailleMirrorMap.put('⠺', '⠗'); // w
+        brailleMirrorMap.put('⠭', '⠭'); // x 
+        brailleMirrorMap.put('⠽','⠯'); // y 
+        brailleMirrorMap.put('⠵', '⠮'); // z 
+        
+        brailleMirrorMap.put('⠷','⠾');//á
+        brailleMirrorMap.put('⠾','⠷');//ú
+        brailleMirrorMap.put('⠬', '⠥');//ó
+        brailleMirrorMap.put('⠮','⠵');//é
+        brailleMirrorMap.put('⠌','⠡');//í   *     
+        //numeros
+        brailleMirrorMap.put('⠼','⠧');
+        brailleMirrorMap.put('⠂', '⠐'); // ,
+        brailleMirrorMap.put('⠦', '⠴'); // "", x
+        brailleMirrorMap.put('⠖', '⠲'); // +
+        brailleMirrorMap.put('⠲', '⠖'); // %
+        brailleMirrorMap.put('⠆', '⠰'); // ;       
+        brailleMirrorMap.put('⠜','⠣'); // )
+        brailleMirrorMap.put('⠣','⠜'); // )
+        brailleMirrorMap.put('⠄','⠠'); // .
+        brailleMirrorMap.put('⠢','⠔'); //¿    
+        
+        
         createUppercaseAlphabet();
         createReverseMap();
     }
@@ -225,5 +271,19 @@ public class Translator {
 
         return quadratsString.toString();
     }
+    
+    /**
+     * 
+     * @param brailleText
+     * @return textMirrorBraille
+     */
+    public String generateBrailleMirror(String brailleText) {
+        String reversedText = new StringBuilder(brailleText).reverse().toString();
+        StringBuilder mirroredText = new StringBuilder();
+        for (char ch : reversedText.toCharArray()) {
+            mirroredText.append(brailleMirrorMap.getOrDefault(ch, ch));
+        }
 
+        return mirroredText.toString();
+    }
 }
