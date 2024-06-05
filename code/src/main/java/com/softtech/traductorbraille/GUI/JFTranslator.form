@@ -168,6 +168,9 @@
                   <Dimension value="[235, 85]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTASpanishFocusGained"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -285,6 +288,9 @@
                   <Dimension value="[235, 85]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTBrailleFocusGained"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
