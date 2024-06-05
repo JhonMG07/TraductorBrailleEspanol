@@ -141,7 +141,8 @@ public class JFExport extends javax.swing.JFrame {
 
     private void BotonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonGuardarActionPerformed
         String formato = (String) jComboBoxOpciones.getSelectedItem();
-        String nombreArchivo = jTextFieldNombreArchivo.getText();
+        String extension = "." + formato.toLowerCase();
+        String nombreArchivo = jTextFieldNombreArchivo.getText() + extension;
         // Obtener la ruta seleccionada del JTextField
         String rutaSeleccionada = jTextField1.getText();
         if (rutaSeleccionada.isEmpty()) {
