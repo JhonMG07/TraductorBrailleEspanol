@@ -4,6 +4,13 @@ import com.softtech.traductorbraille.logic.Translator;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import static java.awt.print.Printable.NO_SUCH_PAGE;
+import static java.awt.print.Printable.PAGE_EXISTS;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+
 
 /**
  *
@@ -15,8 +22,9 @@ public class JFTranslator extends javax.swing.JFrame {
     private BrailleCell additionalBrailleCell;
     private boolean isUpperCaseMode = false;
     private boolean isNumberMode = false;
+    private boolean firstTime = true;
     private Translator translator = new Translator();
-
+    private String totalBrailleTranslation = new String();
     private static final int[] BRAILLE_INDEX_MAPPING = {0, 2, 4, 1, 3, 5};
     private static final int[] KEY_EVENT_MAPPING = {
         KeyEvent.VK_NUMPAD1, KeyEvent.VK_NUMPAD2, KeyEvent.VK_NUMPAD3,
@@ -75,6 +83,11 @@ public class JFTranslator extends javax.swing.JFrame {
         jTASpanish.setWrapStyleWord(true);
         jTASpanish.setMinimumSize(new java.awt.Dimension(235, 85));
         jTASpanish.setPreferredSize(new java.awt.Dimension(235, 85));
+        jTASpanish.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTASpanishFocusGained(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTASpanish);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -117,6 +130,11 @@ public class JFTranslator extends javax.swing.JFrame {
         jTBraille.setRows(5);
         jTBraille.setMinimumSize(new java.awt.Dimension(235, 85));
         jTBraille.setPreferredSize(new java.awt.Dimension(235, 85));
+        jTBraille.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTBrailleFocusGained(evt);
+            }
+        });
         jScrollPane2.setViewportView(jTBraille);
 
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
@@ -284,6 +302,11 @@ public class JFTranslator extends javax.swing.JFrame {
 
         jMImprimir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMImprimir.setText("Imprimir");
+        jMImprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMImprimirActionPerformed(evt);
+            }
+        });
         jMFile.add(jMImprimir);
 
         jMenuBar1.add(jMFile);
@@ -366,8 +389,22 @@ public class JFTranslator extends javax.swing.JFrame {
             braillePanel.repaint();
         } else if (keyCode == KeyEvent.VK_ENTER) {
             // Traducción al presionar Enter
+            clearTextFields();
             translateText();
+            totalBrailleTranslation+=" ";  
+        } else if (keyCode == KeyEvent.VK_SPACE) {
+            // Añadir espacio para nueva palabra
+            addSpace();
+            firstTime = true;
         }
+    }
+
+    private void addSpace() {
+        this.totalBrailleTranslation += "  ";
+        this.jTASpanish.append(" ");
+        this.jTBraille.append("⠀");  // Braille space character
+        currentBrailleCell.clearPoints();
+        braillePanel.repaint();
     }
 
     private int findIndexForKeyCode(int keyCode) {
@@ -406,13 +443,21 @@ public class JFTranslator extends javax.swing.JFrame {
             }
         }
 
-        if (isUpperCaseMode || isNumberMode) {
+        if (isUpperCaseMode) {
             targetCellText.append(getTargetCellText(additionalBrailleCell));
             targetCellText.append(" ");
+            firstTime = true;
+        }
+        
+        if(isNumberMode && firstTime){
+            targetCellText.append(getTargetCellText(additionalBrailleCell));
+            targetCellText.append(" ");
+            firstTime = false;
         }
 
-        String combinedText = targetCellText.toString() + cellText.toString();
-        String translatedText = translator.translateToSpanish(combinedText);
+        String combinedText = targetCellText.toString() + cellText.toString();        
+        totalBrailleTranslation += combinedText;
+        String translatedText = translator.translateToSpanish(totalBrailleTranslation);
 
         if (translatedText.equals("?")) {
             JOptionPane.showMessageDialog(this,
@@ -422,9 +467,7 @@ public class JFTranslator extends javax.swing.JFrame {
         }
 
         this.jTASpanish.append(translatedText);
-        String brailleUnicode = isUpperCaseMode || isNumberMode
-                ? translator.brailleToUnicode(combinedText)
-                : translator.brailleToUnicode(cellText.toString());
+        String brailleUnicode = translator.brailleToUnicode(totalBrailleTranslation);
         this.jTBraille.append(brailleUnicode);
     }
 
@@ -515,7 +558,7 @@ public class JFTranslator extends javax.swing.JFrame {
             this.setTitle("Brailingo - Traductor: Braille -> Español");
             this.jLBrailleEntrada.setText("Español");
             this.jLEspañolEntrada.setText("Braille");
-            requestFocusInWindow();
+            handleFocusGainedOnBraille();
         } else {
             this.setTitle("Brailingo - Traductor: Español -> Braille");
             this.jLBrailleEntrada.setText("Braille");
@@ -544,11 +587,20 @@ public class JFTranslator extends javax.swing.JFrame {
                         "El modo de mayúscula o número está activado, pero la celda de braille actual está vacía.",
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
+            handleFocusGainedOnBraille();
+        }
+    }
+
+    private void handleFocusGainedOnBraille() {
+        if (!getTranslationMode()) {
+            requestFocusInWindow();
         }
     }
 
     private void jBBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBBorrarActionPerformed
         clearTextFields();
+        handleFocusGainedOnBraille();
+        totalBrailleTranslation = "";
     }//GEN-LAST:event_jBBorrarActionPerformed
 
     private void jBTraducirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBTraducirActionPerformed
@@ -565,6 +617,7 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_jBIntercambioActionPerformed
 
     private void jCBMayusculasItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBMayusculasItemStateChanged
+        handleFocusGainedOnBraille();
         if (jCBMayusculas.isSelected()) {
             upperCaseSelect();
             this.jCBNumeros.setSelected(false);
@@ -575,6 +628,7 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_jCBMayusculasItemStateChanged
 
     private void jCBNumerosItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBNumerosItemStateChanged
+        handleFocusGainedOnBraille();
         if (jCBNumeros.isSelected()) {
             numberCaseSelect();
             this.jCBMayusculas.setSelected(false);
@@ -585,8 +639,9 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_jCBNumerosItemStateChanged
 
     private void braillePanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_braillePanelMouseClicked
-        requestFocusInWindow();
+        handleFocusGainedOnBraille();
     }//GEN-LAST:event_braillePanelMouseClicked
+
 
     private void jMExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMExportarActionPerformed
         //String texto = jTBraille.getText(); // Obtener el texto del JTextArea
@@ -601,6 +656,62 @@ public class JFTranslator extends javax.swing.JFrame {
         JFExport exportFrame = new JFExport(texto); // Crear una instancia de JFExport
         exportFrame.setVisible(true); // Hacer visible la ventana de exportación
     }//GEN-LAST:event_jMExportarActionPerformed
+
+    private void jMImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMImprimirActionPerformed
+        try {
+            // TODO add your handling code here:
+            printText(translator.generateBrailleMirror(jTBraille.getText()));
+        } catch (PrinterException ex) {
+            System.out.println("Error: "+ ex.getMessage());
+        }
+    }//GEN-LAST:event_jMImprimirActionPerformed
+
+
+    public void printText(String content) throws PrinterException {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
+            if (pageIndex > 0) {
+                return NO_SUCH_PAGE;
+            }
+            Graphics2D g2d = (Graphics2D) graphics;
+            g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 32));
+            g2d.setColor(Color.BLACK);
+            int lineHeight = g2d.getFontMetrics().getHeight();
+            int y1 = 0;
+            int margin = 50; 
+            for (String line : content.split("\n")) {
+                String[] words = line.split(" ");
+                String currentLine = words[0];
+                for (int i = 1; i < words.length; i++) {
+                    if (g2d.getFontMetrics().stringWidth(currentLine + " " + words[i]) < pageFormat.getImageableWidth() - 2 * margin) {
+                        currentLine += " " + words[i];
+                    } else {
+                        y1 += lineHeight;
+                        g2d.drawString(currentLine, margin, y1);
+                        currentLine = words[i];
+                    }
+                }
+                y1 += lineHeight;
+                g2d.drawString(currentLine, margin, y1);
+            }
+            return PAGE_EXISTS;
+        });
+        // Show the print dialog
+        if (job.printDialog()) {
+            job.print();
+        }
+    }
+    
+
+    private void jTBrailleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTBrailleFocusGained
+        handleFocusGainedOnBraille();
+    }//GEN-LAST:event_jTBrailleFocusGained
+
+    private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained
+        handleFocusGainedOnBraille();
+    }//GEN-LAST:event_jTASpanishFocusGained
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel braillePanel;

@@ -269,7 +269,7 @@ public class JFExport extends javax.swing.JFrame {
         }
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify                     
     private javax.swing.JButton ButtonSelectFolder;
     private javax.swing.JButton SaveButton;
     private javax.swing.JButton jButton1;
@@ -287,5 +287,5 @@ public class JFExport extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextFieldNombreArchivo;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration      
 }
