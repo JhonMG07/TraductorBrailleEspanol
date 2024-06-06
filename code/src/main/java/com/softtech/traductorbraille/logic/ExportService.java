@@ -4,17 +4,19 @@
  */
 package com.softtech.traductorbraille.logic;
 
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.io.font.constants.StandardFonts;
 
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-
 
 
 /**
@@ -38,16 +40,16 @@ public class ExportService {
             default -> throw new IllegalArgumentException("Unsupported format: " + format);
         }
     }*/
-    public void exportBraille(File file, String format, String brailleText, int width) throws FileNotFoundException, IOException {
+    public void exportBraille(File file, String format, String brailleText, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color) throws Exception {
         switch (format.toUpperCase()) {
             case "TXT":
                 exportAsTxt(file, brailleText);
                 break;
             case "PDF":
-                exportAsPdf(file, brailleText);
+                exportAsPdf(file, brailleText, fontSize, isBold, isItalic, color);
                 break;
             case "PNG":
-                exportAsImage(file, brailleText, format, width);
+                exportAsImage(file, brailleText, fontSize, isBold, isItalic, color, format);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported format: " + format);
@@ -66,23 +68,46 @@ public class ExportService {
             document.add(new Paragraph(content));
         }
     }*/
-    private void exportAsPdf(File file, String content) throws IOException {
+    private void exportAsPdf(File file, String content, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color) throws IOException {
         try (PdfWriter writer = new PdfWriter(file.getAbsolutePath());
              PdfDocument pdfDoc = new PdfDocument(writer)) {
             Document document = new Document(pdfDoc);
-            document.add(new Paragraph(content));
+
+            com.itextpdf.layout.element.Paragraph paragraph = new Paragraph(content);
+            paragraph.setFontSize(fontSize);
+            paragraph.setFontColor(new DeviceRgb(color.getRed(), color.getGreen(), color.getBlue()));
+
+            if (isBold && isItalic) {
+                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_BOLDITALIC));
+            } else if (isBold) {
+                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_BOLD));
+            } else if (isItalic) {
+                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_ITALIC));
+            } else {
+                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_ROMAN));
+            }
+
+            document.add(paragraph);
             document.close();
         }
     }
 
-    private void exportAsImage(File file, String content, String format, int width) throws IOException {
-        BufferedImage bufferedImage = new BufferedImage(width, 500, BufferedImage.TYPE_INT_ARGB);
+    private void exportAsImage(File file, String content, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color, String format) throws IOException {
+        BufferedImage bufferedImage = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufferedImage.createGraphics();
-        g2d.setFont(new Font("Braille", Font.PLAIN, 20));
-        g2d.drawString(content, 20, 20);
+        int fontStyle = Font.PLAIN;
+        if (isBold && isItalic) {
+            fontStyle = Font.BOLD | Font.ITALIC;
+        } else if (isBold) {
+            fontStyle = Font.BOLD;
+        } else if (isItalic) {
+            fontStyle = Font.ITALIC;
+        }
+
+        g2d.setFont(new Font("Braille", fontStyle, fontSize));
+        g2d.setColor(color);
+        g2d.drawString(content, 20, 50); // Ajusta la posición del texto según sea necesario
         g2d.dispose();
         ImageIO.write(bufferedImage, format.toLowerCase(), file);
-    }
-    
-
+    }    
 }
