@@ -275,7 +275,7 @@ public class Translator {
      * @return textMirrorBraille
      */
     public String generateBrailleMirror(String brailleText) {
-        String reversedText = new StringBuilder(brailleText).toString();
+        String reversedText = new StringBuilder(brailleText).reverse().toString();
         StringBuilder mirroredText = new StringBuilder();
         for (char ch : reversedText.toCharArray()) {
             mirroredText.append(brailleMirrorMap.getOrDefault(ch, ch));

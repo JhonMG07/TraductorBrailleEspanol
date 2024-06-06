@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.PageFormat;
+import java.awt.print.Printable;
 import static java.awt.print.Printable.NO_SUCH_PAGE;
 import static java.awt.print.Printable.PAGE_EXISTS;
 import java.awt.print.PrinterException;
@@ -614,11 +615,7 @@ public class JFTranslator extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMImprimirActionPerformed
 
-    /**
-     * method to print text traduction
-     * @param content
-     * @throws PrinterException 
-     */
+
     public void printText(String content) throws PrinterException {
         PrinterJob job = PrinterJob.getPrinterJob();
         job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
@@ -631,13 +628,25 @@ public class JFTranslator extends javax.swing.JFrame {
             g2d.setColor(Color.BLACK);
             int lineHeight = g2d.getFontMetrics().getHeight();
             int y1 = 0;
+            int margin = 50; 
             for (String line : content.split("\n")) {
+                String[] words = line.split(" ");
+                String currentLine = words[0];
+                for (int i = 1; i < words.length; i++) {
+                    if (g2d.getFontMetrics().stringWidth(currentLine + " " + words[i]) < pageFormat.getImageableWidth() - 2 * margin) {
+                        currentLine += " " + words[i];
+                    } else {
+                        y1 += lineHeight;
+                        g2d.drawString(currentLine, margin, y1);
+                        currentLine = words[i];
+                    }
+                }
                 y1 += lineHeight;
-                g2d.drawString(line, 50, y1);
+                g2d.drawString(currentLine, margin, y1);
             }
             return PAGE_EXISTS;
         });
-        // Mostrar el cuadro de diálogo de impresión
+        // Show the print dialog
         if (job.printDialog()) {
             job.print();
         }
