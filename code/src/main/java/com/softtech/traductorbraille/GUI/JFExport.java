@@ -13,21 +13,21 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author USUARIO
+ * @author SoftTech
  */
 public class JFExport extends javax.swing.JFrame {
 
-    private final String texto;
+    private final String text;
     private final JFileChooser fileChooser;
     private JFTranslator jFTranslator;
     private Color selectedColor;
 
-    public JFExport(String texto) {
+    public JFExport(String text) {
         this.selectedColor = Color.BLACK;
-        this.texto = texto;
+        this.text = text;
         initComponents();
         fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Solo seleccionar directorios
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         setDefaultCloseOperation(JFExport.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -35,12 +35,11 @@ public class JFExport extends javax.swing.JFrame {
 
     private JFExport() {
         this.selectedColor = Color.BLACK;
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from
-                                                                       // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public String getTexto() {
-        return texto;
+        return text;
     }
 
     /**
@@ -56,9 +55,9 @@ public class JFExport extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jComboBoxOpciones = new javax.swing.JComboBox<>();
-        BotonGuardar = new javax.swing.JButton();
+        SaveButton = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
-        BotonSeleccionarCarpeta = new javax.swing.JButton();
+        ButtonSelectFolder = new javax.swing.JButton();
         jTextFieldNombreArchivo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -77,17 +76,17 @@ public class JFExport extends javax.swing.JFrame {
 
         jComboBoxOpciones.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TXT", "PDF", "PNG" }));
 
-        BotonGuardar.setText("GUARDAR");
-        BotonGuardar.addActionListener(new java.awt.event.ActionListener() {
+        SaveButton.setText("GUARDAR");
+        SaveButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BotonGuardarActionPerformed(evt);
+                SaveButtonActionPerformed(evt);
             }
         });
 
-        BotonSeleccionarCarpeta.setText("...");
-        BotonSeleccionarCarpeta.addActionListener(new java.awt.event.ActionListener() {
+        ButtonSelectFolder.setText("...");
+        ButtonSelectFolder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BotonSeleccionarCarpetaActionPerformed(evt);
+                ButtonSelectFolderActionPerformed(evt);
             }
         });
 
@@ -135,7 +134,7 @@ public class JFExport extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jTextField1)
                         .addGap(18, 18, 18)
-                        .addComponent(BotonSeleccionarCarpeta))
+                        .addComponent(ButtonSelectFolder))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jTextFieldNombreArchivo)
                         .addGap(18, 18, 18)
@@ -145,7 +144,7 @@ public class JFExport extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel4))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(BotonGuardar)
+                        .addComponent(SaveButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addGap(29, 29, 29))
@@ -194,13 +193,13 @@ public class JFExport extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(BotonSeleccionarCarpeta)
+                    .addComponent(ButtonSelectFolder)
                     .addComponent(jCheckBoxNegrita)
                     .addComponent(jCheckBoxCursiva)
                     .addComponent(jButtonColor))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(BotonGuardar)
+                    .addComponent(SaveButton)
                     .addComponent(jButton1))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
@@ -209,7 +208,7 @@ public class JFExport extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 589, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -223,31 +222,29 @@ public class JFExport extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void BotonSeleccionarCarpetaActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_BotonSeleccionarCarpetaActionPerformed
+    private void ButtonSelectFolderActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_BotonSeleccionarCarpetaActionPerformed
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFolder = fileChooser.getSelectedFile();
             jTextField1.setText(selectedFolder.getAbsolutePath());
         }
-    }// GEN-LAST:event_BotonSeleccionarCarpetaActionPerformed
+    }
 
-    private void BotonGuardarActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_BotonGuardarActionPerformed
-        String formato = (String) jComboBoxOpciones.getSelectedItem();
-        String nombreArchivo = jTextFieldNombreArchivo.getText();
-        // Obtener la ruta seleccionada del JTextField
-        String rutaSeleccionada = jTextField1.getText();
+    private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_BotonGuardarActionPerformed
+        String format = (String) jComboBoxOpciones.getSelectedItem();
+        String filename = jTextFieldNombreArchivo.getText();
+        String filePath = jTextField1.getText();
 
-        if (rutaSeleccionada.isEmpty()) {
+        if (filePath.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, selecciona una carpeta para guardar el archivo.");
             return;
         }
 
-        // Agregar la extensión al nombre del archivo según el formato seleccionado
-        if (!nombreArchivo.toLowerCase().endsWith("." + formato.toLowerCase())) {
-            nombreArchivo += "." + formato.toLowerCase();
+        if (!filename.toLowerCase().endsWith("." + format.toLowerCase())) {
+            filename += "." + format.toLowerCase();
         }
 
-        File file = new File(rutaSeleccionada, nombreArchivo);
+        File file = new File(filePath, filename);
         if (!file.getParentFile().isDirectory()) {
             JOptionPane.showMessageDialog(this, "La ruta seleccionada no es un directorio válido.");
             return;
@@ -258,27 +255,23 @@ public class JFExport extends javax.swing.JFrame {
             boolean isBold = jCheckBoxNegrita.isSelected();
             boolean isItalic = jCheckBoxCursiva.isSelected();
             ExportService exportService = new ExportService();
-            exportService.exportBraille(file, formato, texto, fontSize, isBold, isItalic, selectedColor); // Aquí usamos
-                                                                                                          // el texto
-                                                                                                          // recibido
-                                                                                                          // del primer
-                                                                                                          // JFrame
-            JOptionPane.showMessageDialog(this, "Texto guardado correctamente como " + formato);
+            exportService.exportBraille(file, format, text, fontSize, isBold, isItalic, selectedColor);
+            JOptionPane.showMessageDialog(this, "Texto guardado correctamente como " + format);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + ex.getMessage());
         }
-    }// GEN-LAST:event_BotonGuardarActionPerformed
+    }
 
-    private void jButtonColorActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButtonColorActionPerformed
+    private void jButtonColorActionPerformed(java.awt.event.ActionEvent evt) {
         Color color = JColorChooser.showDialog(this, "Seleccionar color de texto", selectedColor);
         if (color != null) {
             selectedColor = color;
         }
-    }// GEN-LAST:event_jButtonColorActionPerformed
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BotonGuardar;
-    private javax.swing.JButton BotonSeleccionarCarpeta;
+    private javax.swing.JButton ButtonSelectFolder;
+    private javax.swing.JButton SaveButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonColor;
     private javax.swing.JCheckBox jCheckBoxCursiva;
