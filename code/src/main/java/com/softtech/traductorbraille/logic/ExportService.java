@@ -10,7 +10,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.io.font.PdfEncodings;
 
 
 import javax.imageio.ImageIO;
@@ -21,7 +21,7 @@ import java.io.*;
 
 /**
  *
- * @author USUARIO
+ * @author SoftTech
  */
 public class ExportService {
     
@@ -32,14 +32,7 @@ public class ExportService {
      * @param brailleText
      * @throws Exception
      */
-    /**public void exportBraille(File file, String format, String brailleText) throws Exception {
-        switch (format.toUpperCase()) {
-            case "TXT" -> exportAsTxt(file, brailleText);
-            case "PDF" -> exportAsPdf(file, brailleText);
-            case "PNG" -> exportAsImage(file, brailleText, format);
-            default -> throw new IllegalArgumentException("Unsupported format: " + format);
-        }
-    }*/
+    
     public void exportBraille(File file, String format, String brailleText, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color) throws Exception {
         switch (format.toUpperCase()) {
             case "TXT":
@@ -62,35 +55,32 @@ public class ExportService {
         }
     }
 
-    /**private void exportAsPdf(File file, String content) throws IOException {
-        try (PdfWriter writer = new PdfWriter(file.getAbsolutePath());
-             PdfDocument pdfDoc = new PdfDocument(writer); Document document = new Document(pdfDoc)) {
-            document.add(new Paragraph(content));
-        }
-    }*/
     private void exportAsPdf(File file, String content, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color) throws IOException {
         try (PdfWriter writer = new PdfWriter(file.getAbsolutePath());
              PdfDocument pdfDoc = new PdfDocument(writer)) {
             Document document = new Document(pdfDoc);
 
+            String fontPath = "src/main/java/folder/seguisym.ttf";
+            com.itextpdf.kernel.font.PdfFont font = PdfFontFactory.createFont(fontPath, PdfEncodings.IDENTITY_H, true);
+
             com.itextpdf.layout.element.Paragraph paragraph = new Paragraph(content);
             paragraph.setFontSize(fontSize);
             paragraph.setFontColor(new DeviceRgb(color.getRed(), color.getGreen(), color.getBlue()));
-
+            paragraph.setFont(font);
+            
             if (isBold && isItalic) {
-                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_BOLDITALIC));
+                paragraph.setBold().setItalic();
             } else if (isBold) {
-                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_BOLD));
+                paragraph.setBold();
             } else if (isItalic) {
-                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_ITALIC));
-            } else {
-                paragraph.setFont(com.itextpdf.kernel.font.PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.TIMES_ROMAN));
+                paragraph.setItalic();
             }
 
             document.add(paragraph);
             document.close();
         }
     }
+    
 
     private void exportAsImage(File file, String content, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color, String format) throws IOException {
         BufferedImage bufferedImage = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
@@ -106,7 +96,7 @@ public class ExportService {
 
         g2d.setFont(new Font("Braille", fontStyle, fontSize));
         g2d.setColor(color);
-        g2d.drawString(content, 20, 50); // Ajusta la posición del texto según sea necesario
+        g2d.drawString(content, 20, 50);
         g2d.dispose();
         ImageIO.write(bufferedImage, format.toLowerCase(), file);
     }    
