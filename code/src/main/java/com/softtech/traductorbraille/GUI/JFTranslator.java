@@ -658,45 +658,50 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_jMExportarActionPerformed
 
     private void jMImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMImprimirActionPerformed
-        JFPreviewText prev = new JFPreviewText(translator.generateBrailleMirror(this.jTBraille.getText()));
-        prev.setVisible(true);
+        try {
+            // TODO add your handling code here:
+            printText(translator.generateBrailleMirror(jTBraille.getText()));
+        } catch (PrinterException ex) {
+            System.out.println("Error: "+ ex.getMessage());
+        }
     }//GEN-LAST:event_jMImprimirActionPerformed
 
-//    public void printText(String content) throws PrinterException {
-//        PrinterJob job = PrinterJob.getPrinterJob();
-//        job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
-//            if (pageIndex > 0) {
-//                return NO_SUCH_PAGE;
-//            }
-//            Graphics2D g2d = (Graphics2D) graphics;
-//            g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-//            g2d.setFont(new Font("SansSerif", Font.PLAIN, 32));
-//            g2d.setColor(Color.BLACK);
-//            int lineHeight = g2d.getFontMetrics().getHeight();
-//            int y1 = 0;
-//            int margin = 50; 
-//            for (String line : content.split("\n")) {
-//                String[] words = line.split(" ");
-//                String currentLine = words[0];
-//                for (int i = 1; i < words.length; i++) {
-//                    if (g2d.getFontMetrics().stringWidth(currentLine + " " + words[i]) < pageFormat.getImageableWidth() - 2 * margin) {
-//                        currentLine += " " + words[i];
-//                    } else {
-//                        y1 += lineHeight;
-//                        g2d.drawString(currentLine, margin, y1);
-//                        currentLine = words[i];
-//                    }
-//                }
-//                y1 += lineHeight;
-//                g2d.drawString(currentLine, margin, y1);
-//            }
-//            return PAGE_EXISTS;
-//        });
-//        // Show the print dialog
-//        if (job.printDialog()) {
-//            job.print();
-//        }
-//    }
+
+    public void printText(String content) throws PrinterException {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
+            if (pageIndex > 0) {
+                return NO_SUCH_PAGE;
+            }
+            Graphics2D g2d = (Graphics2D) graphics;
+            g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 32));
+            g2d.setColor(Color.BLACK);
+            int lineHeight = g2d.getFontMetrics().getHeight();
+            int y1 = 0;
+            int margin = 50; 
+            for (String line : content.split("\n")) {
+                String[] words = line.split(" ");
+                String currentLine = words[0];
+                for (int i = 1; i < words.length; i++) {
+                    if (g2d.getFontMetrics().stringWidth(currentLine + " " + words[i]) < pageFormat.getImageableWidth() - 2 * margin) {
+                        currentLine += " " + words[i];
+                    } else {
+                        y1 += lineHeight;
+                        g2d.drawString(currentLine, margin, y1);
+                        currentLine = words[i];
+                    }
+                }
+                y1 += lineHeight;
+                g2d.drawString(currentLine, margin, y1);
+            }
+            return PAGE_EXISTS;
+        });
+        // Show the print dialog
+        if (job.printDialog()) {
+            job.print();
+        }
+    }
     
 
     private void jTBrailleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTBrailleFocusGained
