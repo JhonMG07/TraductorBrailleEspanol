@@ -139,6 +139,7 @@ public class Translator {
     public String translateToSpanish(String brailleText) {
         StringBuilder translatedText = new StringBuilder();
         boolean isNumberMode = false;
+        boolean isCapital = false;
 
         String[] brailleTextArray = extractBrailleText(brailleText);
 
@@ -161,8 +162,13 @@ public class Translator {
             }
 
             if (brailleTextArray[i].equals("46")) {
-                auxiliary = brailleTextArray[i] + " " + brailleTextArray[i + 1];
-                i++;
+                isCapital = true;
+                continue;
+            }
+            
+            if(isCapital){
+                auxiliary = "46 " + brailleTextArray[i];
+                isCapital = false;
             }
 
             translatedChar = brailleMap.getOrDefault(auxiliary, "?");
