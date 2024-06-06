@@ -589,7 +589,15 @@ public class JFTranslator extends javax.swing.JFrame {
     }//GEN-LAST:event_braillePanelMouseClicked
 
     private void jMExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMExportarActionPerformed
-        String texto = jTBraille.getText(); // Obtener el texto del JTextArea
+        //String texto = jTBraille.getText(); // Obtener el texto del JTextArea
+        
+        String texto;
+        if (getTranslationMode()) { // si es Español -> Braille
+            texto = jTBraille.getText();
+        } else { // si es Braille -> Español
+            texto = jTASpanish.getText();
+        }
+        
         JFExport exportFrame = new JFExport(texto); // Crear una instancia de JFExport
         exportFrame.setVisible(true); // Hacer visible la ventana de exportación
     }//GEN-LAST:event_jMExportarActionPerformed
