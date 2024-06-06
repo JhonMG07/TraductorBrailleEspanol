@@ -4,6 +4,13 @@ import com.softtech.traductorbraille.logic.Translator;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import static java.awt.print.Printable.NO_SUCH_PAGE;
+import static java.awt.print.Printable.PAGE_EXISTS;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+
 
 /**
  *
@@ -286,10 +293,20 @@ public class JFTranslator extends javax.swing.JFrame {
 
         jMExportar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMExportar.setText("Exportar");
+        jMExportar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMExportarActionPerformed(evt);
+            }
+        });
         jMFile.add(jMExportar);
 
         jMImprimir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         jMImprimir.setText("Imprimir");
+        jMImprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMImprimirActionPerformed(evt);
+            }
+        });
         jMFile.add(jMImprimir);
 
         jMenuBar1.add(jMFile);
@@ -625,6 +642,60 @@ public class JFTranslator extends javax.swing.JFrame {
         handleFocusGainedOnBraille();
     }//GEN-LAST:event_braillePanelMouseClicked
 
+
+    private void jMExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMExportarActionPerformed
+        String texto = jTBraille.getText(); // Obtener el texto del JTextArea
+        JFExport exportFrame = new JFExport(texto); // Crear una instancia de JFExport
+        exportFrame.setVisible(true); // Hacer visible la ventana de exportación
+    }//GEN-LAST:event_jMExportarActionPerformed
+
+    private void jMImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMImprimirActionPerformed
+        try {
+            // TODO add your handling code here:
+            printText(translator.generateBrailleMirror(jTBraille.getText()));
+        } catch (PrinterException ex) {
+            System.out.println("Error: "+ ex.getMessage());
+        }
+    }//GEN-LAST:event_jMImprimirActionPerformed
+
+
+    public void printText(String content) throws PrinterException {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
+            if (pageIndex > 0) {
+                return NO_SUCH_PAGE;
+            }
+            Graphics2D g2d = (Graphics2D) graphics;
+            g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 32));
+            g2d.setColor(Color.BLACK);
+            int lineHeight = g2d.getFontMetrics().getHeight();
+            int y1 = 0;
+            int margin = 50; 
+            for (String line : content.split("\n")) {
+                String[] words = line.split(" ");
+                String currentLine = words[0];
+                for (int i = 1; i < words.length; i++) {
+                    if (g2d.getFontMetrics().stringWidth(currentLine + " " + words[i]) < pageFormat.getImageableWidth() - 2 * margin) {
+                        currentLine += " " + words[i];
+                    } else {
+                        y1 += lineHeight;
+                        g2d.drawString(currentLine, margin, y1);
+                        currentLine = words[i];
+                    }
+                }
+                y1 += lineHeight;
+                g2d.drawString(currentLine, margin, y1);
+            }
+            return PAGE_EXISTS;
+        });
+        // Show the print dialog
+        if (job.printDialog()) {
+            job.print();
+        }
+    }
+    
+
     private void jTBrailleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTBrailleFocusGained
         handleFocusGainedOnBraille();
     }//GEN-LAST:event_jTBrailleFocusGained
@@ -632,6 +703,7 @@ public class JFTranslator extends javax.swing.JFrame {
     private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained
         handleFocusGainedOnBraille();
     }//GEN-LAST:event_jTASpanishFocusGained
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel braillePanel;
