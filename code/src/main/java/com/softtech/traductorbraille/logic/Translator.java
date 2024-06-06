@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -179,24 +181,62 @@ public class Translator {
 
     public String translateToSpanish(String brailleText) {
         StringBuilder translatedText = new StringBuilder();
-        String[] cells = brailleText.split("  "); //Separar en palabras
-        //Separar por letras y valores numericos 
-        for (String cell : cells) {
-            String[] words = cell.split(" ");
-            for (int i = 0; i < words.length; i++) {
-                String translatedChar;
-                String auxiliary = words[i];
-                if (words[i].equals("46") || words[i].equals("3456")) {
-                    auxiliary = words[i] + " " + words[i + 1];
-                    i++;
-                }
-                translatedChar = brailleMap.getOrDefault(auxiliary, "?");
+        boolean isNumberMode = false;
+        boolean isCapital = false;
 
-                translatedText.append(translatedChar);
+        String[] brailleTextArray = extractBrailleText(brailleText);
+
+        for (int i = 0; i < brailleTextArray.length; i++) {
+            String translatedChar;
+            String auxiliary = brailleTextArray[i];
+            if (brailleTextArray[i].equals("3456")) {
+                isNumberMode = true;
+                continue;
             }
-            translatedText.append(" ");
+            if (isNumberMode) {
+                auxiliary = "3456 " + brailleTextArray[i];
+                if (isAlphabeticCharacter(auxiliary) && !isPeriodOrComma(brailleTextArray[i])) {
+                    auxiliary = brailleTextArray[i];
+                    isNumberMode = false;
+                }
+                if (isPeriodOrComma(brailleTextArray[i])) {
+                    auxiliary = brailleTextArray[i];
+                }
+            }
+
+            if (brailleTextArray[i].equals("46")) {
+                isCapital = true;
+                continue;
+            }
+            
+            if(isCapital){
+                auxiliary = "46 " + brailleTextArray[i];
+                isCapital = false;
+            }
+
+            translatedChar = brailleMap.getOrDefault(auxiliary, "?");
+
+            translatedText.append(translatedChar);
         }
+
         return translatedText.toString();
+    }
+
+    private String[] extractBrailleText(String brailleText) {
+        List<String> brailleTextList = new ArrayList<>();
+        String regex = "\\d+|\\n|\\t|\\s{2}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(brailleText);
+
+        while (matcher.find()) {
+            brailleTextList.add(matcher.group());
+        }
+
+        return brailleTextList.toArray(new String[0]);
+    }
+
+    private boolean isAlphabeticCharacter(String code) {
+        return brailleMap.getOrDefault(code, "?").equals("?");
     }
 
     private List<Character> brailleCodeToQuadratin(String dots) {
@@ -214,7 +254,7 @@ public class Translator {
         StringBuilder brailleText = new StringBuilder();
         boolean isNumber = false;
         char[] spanishTextArray = spanishText.toCharArray();
-        
+
         for (char ch : spanishTextArray) {
             String brailleValue = getBrailleValue(ch);
 
@@ -242,7 +282,7 @@ public class Translator {
         if (Character.isDigit(ch) || ch == '.' || ch == ',') {
             if (isNumber && Character.isDigit(ch)) {
                 brailleChars.remove(0);
-            } else {
+            } else if (Character.isDigit(ch)) {
                 isNumber = true;
             }
         } else {
@@ -253,17 +293,20 @@ public class Translator {
 
     private void addCharacterToText(List<Character> characters, StringBuilder text) {
         for (char element : characters) {
-            text.append(element).append(" ");
+            text.append(element);
         }
     }
 
     public String brailleToUnicode(String brailleText) {
         StringBuilder quadratsString = new StringBuilder();
-        String[] words = brailleText.split("");
+        String[] words = extractBrailleText(brailleText);
         for (String word : words) {
-            List<Character> quadrats = brailleCodeToQuadratin(word);
-            addCharacterToText(quadrats, quadratsString);
-            quadratsString.append("");
+            String quadrats = brailleMap.getOrDefault(word, "?");
+            if (!isWhitespace(word)) {
+                quadrats = brailleCharFromSegment(word) + "";
+            }
+
+            quadratsString.append(quadrats);
         }
 
         return quadratsString.toString();
@@ -281,6 +324,16 @@ public class Translator {
             mirroredText.append(brailleMirrorMap.getOrDefault(ch, ch));
         }
 
+
         return mirroredText.toString();
     }
+
+    private boolean isPeriodOrComma(String brailleText) {
+        return brailleText.equals("3") || brailleText.equals("2");
+    }
+
+    private boolean isWhitespace(String spacing) {
+        return spacing.equals("  ") || spacing.equals("\n") || spacing.equals("\t");
+    }
+
 }
