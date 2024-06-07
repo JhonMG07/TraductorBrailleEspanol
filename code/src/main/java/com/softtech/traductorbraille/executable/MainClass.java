@@ -5,13 +5,9 @@ import com.softtech.traductorbraille.GUI.JFTranslator;
 /**
  * La clase principal que inicia la aplicación.
  * 
- * <p>
- * Esta clase contiene el método {@code main} que inicia la interfaz gráfica del traductor Braille.
- * Este es un nuevo comentario para el JavaDoc
- * Este el comentario #2 para el JavaDoc
- * </p>
- * 
- * @author Isma2
+ * @since 1.0
+ * @version 1.0
+ * @author SoftTech
  */
 public class MainClass {
 

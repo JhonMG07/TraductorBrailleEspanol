@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.softtech.traductorbraille.logic;
 
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -12,7 +8,6 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.io.font.PdfEncodings;
 
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -21,16 +16,26 @@ import java.io.*;
 
 /**
  *
+ * Servicio de exportación para convertir texto en Braille a diferentes formatos como TXT, PDF e imágenes.
+ * 
+ * @since 1.0
+ * @version 1.0
  * @author SoftTech
  */
+
 public class ExportService {
     
     /**
+     * Exporta el texto en Braille al archivo especificado en el formato deseado.
      *
-     * @param file
-     * @param format
-     * @param brailleText
-     * @throws Exception
+     * @param file El archivo de destino donde se exportará el contenido.
+     * @param format El formato de exportación (TXT, PDF, PNG).
+     * @param brailleText El texto en Braille que se va a exportar.
+     * @param fontSize El tamaño de la fuente para el contenido exportado.
+     * @param isBold Indica si el texto debe estar en negrita.
+     * @param isItalic Indica si el texto debe estar en cursiva.
+     * @param color El color del texto.
+     * @throws Exception Si ocurre un error durante la exportación.
      */
     
     public void exportBraille(File file, String format, String brailleText, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color) throws Exception {
@@ -49,12 +54,32 @@ public class ExportService {
         }
     }
     
+    /**
+     * Exporta el contenido como archivo de texto.
+     *
+     * @param file El archivo de destino.
+     * @param content El contenido a exportar.
+     * @throws FileNotFoundException Si el archivo no puede ser creado o abierto.
+     */
+    
     private void exportAsTxt(File file, String content) throws FileNotFoundException {
         try (PrintWriter out = new PrintWriter(file)) {
             out.println(content);
         }
     }
 
+    /**
+     * Exporta el contenido como archivo PDF.
+     *
+     * @param file El archivo de destino.
+     * @param content El contenido a exportar.
+     * @param fontSize El tamaño de la fuente.
+     * @param isBold Indica si el texto debe estar en negrita.
+     * @param isItalic Indica si el texto debe estar en cursiva.
+     * @param color El color del texto.
+     * @throws IOException Si ocurre un error durante la creación del PDF.
+     */
+    
     private void exportAsPdf(File file, String content, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color) throws IOException {
         try (PdfWriter writer = new PdfWriter(file.getAbsolutePath());
              PdfDocument pdfDoc = new PdfDocument(writer)) {
@@ -82,6 +107,18 @@ public class ExportService {
     }
     
 
+    /**
+     * Exporta el contenido como una imagen.
+     *
+     * @param file El archivo de destino.
+     * @param content El contenido a exportar.
+     * @param fontSize El tamaño de la fuente.
+     * @param isBold Indica si el texto debe estar en negrita.
+     * @param isItalic Indica si el texto debe estar en cursiva.
+     * @param color El color del texto.
+     * @param format El formato de la imagen (PNG).
+     * @throws IOException Si ocurre un error durante la creación de la imagen.
+     */
     private void exportAsImage(File file, String content, int fontSize, boolean isBold, boolean isItalic, java.awt.Color color, String format) throws IOException {
         BufferedImage bufferedImage = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufferedImage.createGraphics();
