@@ -1,4 +1,3 @@
-
 # Manual de Instalación - Brailingo
 
 ## Introducción
