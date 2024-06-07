@@ -1,7 +1,6 @@
 package com.softtech.traductorbraille.logic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +17,9 @@ public class Translator {
     private static final Map<String, String> reverseBrailleMap = new HashMap<>();
     private static final Map<Character, Character> brailleMirrorMap = new HashMap<>();
     static {
-        // Representación de las letras en Braille usando combinaciones de números del 1 al 6
-        // Espacio
         brailleMap.put("\t", "\t");
         brailleMap.put("  ", " ");
         brailleMap.put("\n", "\n");
-        // Alfabeto
         brailleMap.put("1", "a");
         brailleMap.put("12", "b");
         brailleMap.put("14", "c");
@@ -51,14 +47,12 @@ public class Translator {
         brailleMap.put("13456", "y");
         brailleMap.put("1356", "z");
         brailleMap.put("12456", "ñ");
-        // Vocales acentuadas
         brailleMap.put("12356", "á");
         brailleMap.put("2346", "é");
         brailleMap.put("34", "í");
         brailleMap.put("346", "ó");
         brailleMap.put("23456", "ú");
         brailleMap.put("1256", "ü");
-        // Caracteres especiales
         brailleMap.put("3", ".");
         brailleMap.put("2", ",");
         brailleMap.put("23", ";");
@@ -77,7 +71,6 @@ public class Translator {
         brailleMap.put("2356", "=");
         brailleMap.put("256", "/");
         brailleMap.put("3456", "#");
-        // Números
         brailleMap.put("3456 1", "1");
         brailleMap.put("3456 12", "2");
         brailleMap.put("3456 14", "3");
@@ -135,7 +128,10 @@ public class Translator {
         createUppercaseAlphabet();
         createReverseMap();
     }
-
+    
+    /**
+     * Crea un mapa de braille a español
+     */
     private static void createUppercaseAlphabet() {
         Map<String, String> auxiliaryMap = new HashMap<>();
         for (Map.Entry<String, String> entry : brailleMap.entrySet()) {
@@ -146,7 +142,9 @@ public class Translator {
         }
         brailleMap.putAll(auxiliaryMap);
     }
-
+    /**
+     * Crear un mapa de español a braille
+     */
     private static void createReverseMap() {
         for (Map.Entry<String, String> entry : brailleMap.entrySet()) {
             if (!entry.getKey().isEmpty()) {
@@ -154,7 +152,12 @@ public class Translator {
             }
         }
     }
-
+    
+    /**
+     * Convertir cadena de puntos en braille
+     * @param dots puntos activos del cuadratin
+     * @return caracter braille en Unicode
+     */
     private char brailleCharFromSegment(String dots) {
         int baseUnicode = 0x2800;
         int brailleValue = 0;
@@ -178,7 +181,12 @@ public class Translator {
         }
         return (char) (baseUnicode + brailleValue);
     }
-
+    
+    /**
+     * Traducir de braille a español
+     * @param brailleText cadena de texto en braille
+     * @return cadena traducida en español
+     */
     public String translateToSpanish(String brailleText) {
         StringBuilder translatedText = new StringBuilder();
         boolean isNumberMode = false;
@@ -221,7 +229,12 @@ public class Translator {
 
         return translatedText.toString();
     }
-
+    
+    /**
+     * Crear un lista de: números, saltos de linea, tabulaciones, espaciado
+     * @param brailleText
+     * @return lista de coincidencias.
+     */
     private String[] extractBrailleText(String brailleText) {
         List<String> brailleTextList = new ArrayList<>();
         String regex = "\\d+|\\n|\\t|\\s{2}";
@@ -235,10 +248,20 @@ public class Translator {
         return brailleTextList.toArray(new String[0]);
     }
 
+    /**
+     * Verifica si el caracter braille es alfabetico
+     * @param code
+     * @return boolean 
+     */
     private boolean isAlphabeticCharacter(String code) {
         return brailleMap.getOrDefault(code, "?").equals("?");
     }
-
+    
+    /**
+     * transformar codigo braille a cuadratin
+     * @param dots
+     * @return cuadratin
+     */
     private List<Character> brailleCodeToQuadratin(String dots) {
         List<Character> brailleChars = new ArrayList<>();
         String[] segments = dots.split(" ");
@@ -249,7 +272,11 @@ public class Translator {
         }
         return brailleChars;
     }
-
+    /**
+     * convertir un texto en español a braille
+     * @param spanishText
+     * @return cadena en braille
+     */
     public String translateToBraille(String spanishText) {
         StringBuilder brailleText = new StringBuilder();
         boolean isNumber = false;
@@ -269,15 +296,31 @@ public class Translator {
 
         return brailleText.toString().trim();
     }
-
+    
+    /**
+     * obtener el caracter en braille
+     * @param ch
+     * @return braille caracter
+     */
     private String getBrailleValue(char ch) {
         return reverseBrailleMap.getOrDefault(String.valueOf(ch), "");
     }
-
+    
+    /**
+     * verifica si el caracter es espacio en blanco
+     * @param ch
+     * @return boolean
+     */
     private boolean isWhitespace(char ch) {
         return ch == ' ' || ch == '\n' || ch == '\t';
     }
-
+    /**
+     * identificar y ajustar caracteres numericos braille para español
+     * @param ch
+     * @param isNumber
+     * @param brailleChars
+     * @return boolean
+     */
     private boolean handleNumberSequence(char ch, boolean isNumber, List<Character> brailleChars) {
         if (Character.isDigit(ch) || ch == '.' || ch == ',') {
             if (isNumber && Character.isDigit(ch)) {
@@ -290,13 +333,23 @@ public class Translator {
         }
         return isNumber;
     }
-
+    /**
+     * añadir caracter braille a la lista de caracteres braille
+     * @param characters lista de caracteres braille
+     * @param text cadena en braille
+     */
     private void addCharacterToText(List<Character> characters, StringBuilder text) {
         for (char element : characters) {
             text.append(element);
         }
     }
-
+    
+    
+    /**
+     * convertir texto braille a cuadratin Unicode
+     * @param brailleText
+     * @return cuadratin Unicode
+     */
     public String brailleToUnicode(String brailleText) {
         StringBuilder quadratsString = new StringBuilder();
         String[] words = extractBrailleText(brailleText);
@@ -313,9 +366,9 @@ public class Translator {
     }
     
     /**
-     * 
+     * transformar texto braille en su forma expejo
      * @param brailleText
-     * @return textMirrorBraille
+     * @return braille en espejo
      */
     public String generateBrailleMirror(String brailleText) {
         String reversedText = new StringBuilder(brailleText).reverse().toString();
@@ -327,11 +380,19 @@ public class Translator {
 
         return mirroredText.toString();
     }
-
+    /**
+     * Verifica si el caracter braille es punto o coma.
+     * @param brailleText
+     * @return boolena
+     */
     private boolean isPeriodOrComma(String brailleText) {
         return brailleText.equals("3") || brailleText.equals("2");
     }
-
+    /**
+     * Verifica si el caracter es espacio en blanco
+     * @param spacing
+     * @return boolean
+     */
     private boolean isWhitespace(String spacing) {
         return spacing.equals("  ") || spacing.equals("\n") || spacing.equals("\t");
     }
