@@ -14,7 +14,11 @@ import java.awt.print.PrinterJob;
 
 /**
  *
- * @author Isma2
+ * JFTranslator es la interfaz gráfica que permite al usuario realizar traducciones de español-braille y braille-español.
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author SoftTech
  */
 public class JFTranslator extends javax.swing.JFrame {
 

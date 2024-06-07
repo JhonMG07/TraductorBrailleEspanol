@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
 
 /**
  *
+ * Translator aloja la lógica de traducción y diccionario de equivalencias entre el abecedario español y las claves braille.
+ * 
+ * @since 1.0
+ * @version 1.0
  * @author SoftTech
  */
 public class Translator {

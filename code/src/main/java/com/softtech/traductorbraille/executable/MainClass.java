@@ -5,6 +5,8 @@ import com.softtech.traductorbraille.GUI.JFTranslator;
 /**
  * La clase principal que inicia la aplicación.
  * 
+ * @since 1.0
+ * @version 1.0
  * @author SoftTech
  */
 public class MainClass {
