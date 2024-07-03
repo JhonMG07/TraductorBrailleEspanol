@@ -148,7 +148,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
      * Agrega un espacio en la traducción Braille y los campos de texto correspondientes.
      */
     private void addSpace() {
-        this.jTALenEntrada.append(" ");
+        this.jTALenEntrada.append("  ");
         this.jTLenSalida.append("⠀");
         currentBrailleCell.clearPoints();
         braillePanel.repaint();
@@ -171,83 +171,117 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
     }
     
     /**
-     * Traduce la celda Braille actual a texto, usando la clase Translator y coloca los resultados en el formulario.
-     * <p>
-     * Este método realiza los siguientes pasos:
-     * <ol>
-     *     <li>Obtiene los puntos activados en la celda Braille actual y, si está presente, en una celda Braille adicional.</li>
-     *     <li>Combina los textos Braille obtenidos de ambas celdas.</li>
-     *     <li>Determina si el modo de número está activado y realiza la traducción correspondiente, ya sea traduciendo solo números o
-     *         traduciendo normalmente.</li>
-     *     <li>Actualiza la traducción total del Braille con el texto recién traducido.</li>
-     *     <li>Muestra un mensaje de error si la combinación de puntos no existe en el diccionario de traducción.</li>
-     *     <li>Convierte el texto Braille a Unicode y lo agrega al campo de texto Braille del formulario.</li>
-     *     <li>Si hay una celda Braille adicional, limpia sus puntos activados.</li>
-     *     <li>Limpia los puntos activados de la celda Braille actual y repinta el panel Braille.</li>
-     *     <li>Actualiza el diseño del panel Braille si el modo de mayúsculas o el modo de número están activados.</li>
-     * </ol>
-     */
-    private void translateCurrentBrailleCell() {
-        StringBuilder cellText = new StringBuilder();
-        StringBuilder targetCellText = new StringBuilder();
+ * Traduce la celda Braille actual a texto, usando la clase Translator y coloca los resultados en el formulario.
+ */
+private void translateCurrentBrailleCell() {
+    String cellText = getBrailleCellText(currentBrailleCell);
+    String targetCellText = additionalBrailleCell != null ? getBrailleCellText(additionalBrailleCell) : "";
 
-        for (int i = 0; i < BRAILLE_INDEX_MAPPING.length; i++) {
-            if (currentBrailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
-                cellText.append(i + 1);
-            }
-        }
+    String combinedBrailleText = combineBrailleTexts(targetCellText, cellText);
+    String translation = translateBrailleText(combinedBrailleText);
 
-        if (additionalBrailleCell != null) {
-            for (int i = 0; i < BRAILLE_INDEX_MAPPING.length; i++) {
-                if (additionalBrailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
-                    targetCellText.append(i + 1);
-                }
-            }
-        }
+    if (translation.equals("?")) {
+        showTranslationError();
+        return;
+    }
 
-        String brailleText = cellText.toString();
-        String targetBrailleText = targetCellText.toString();
+    updateFormFields(targetCellText, cellText, translation);
+    clearBrailleCells();
+    updateBraillePanelIfNeeded();
+}
 
-        String combinedBrailleText = (targetBrailleText.isEmpty() ? "" : targetBrailleText + " ") + brailleText;
-        String translation;
+/**
+ * Obtiene los puntos activados en la celda Braille.
+ *
+ * @param brailleCell La celda Braille de la cual obtener los puntos activados.
+ * @return Texto Braille basado en los puntos activados.
+ */
+private String getBrailleCellText(BrailleCell brailleCell) {
+    StringBuilder cellText = new StringBuilder();
 
-        if (isNumberMode) {
-            // Si está en modo de número, solo traducir números
-            translation = translator.translateToSpanishNumbersOnly(combinedBrailleText);
-        } else {
-            // Si no está en modo de número, traducir normalmente
-            translation = translator.translateToSpanish(combinedBrailleText);
-        }
-
-        if (translation.equals("?")) {
-            JOptionPane.showMessageDialog(this,
-                    "La traducción para la combinación ingresada no existe en el diccionario.",
-                    "Error de Traducción", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (additionalBrailleCell != null) {
-            String targetBrailleUnicode = translator.brailleToUnicode(targetBrailleText);
-            this.jTLenSalida.append(targetBrailleUnicode);
-        }
-
-        this.jTALenEntrada.append(translation);
-        String brailleUnicode = translator.brailleToUnicode(brailleText);
-        this.jTLenSalida.append(brailleUnicode);
-
-        this.jTLenSalida.append(" ");
-
-        if (additionalBrailleCell != null) {
-            additionalBrailleCell.clearPoints();
-        }
-
-        currentBrailleCell.clearPoints();
-        braillePanel.repaint();
-
-        if (isUpperCaseMode || isNumberMode) {
-            updateBraillePanelLayout();
+    for (int i = 0; i < BRAILLE_INDEX_MAPPING.length; i++) {
+        if (brailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
+            cellText.append(i + 1);
         }
     }
+
+    return cellText.toString();
+}
+
+/**
+ * Combina los textos Braille obtenidos de dos celdas.
+ *
+ * @param targetCellText Texto de la celda Braille adicional.
+ * @param cellText Texto de la celda Braille actual.
+ * @return Texto Braille combinado.
+ */
+private String combineBrailleTexts(String targetCellText, String cellText) {
+    return (targetCellText.isEmpty() ? "" : targetCellText + " ") + cellText;
+}
+
+/**
+ * Traduce el texto Braille basado en el modo de traducción actual.
+ *
+ * @param combinedBrailleText Texto Braille combinado a traducir.
+ * @return Texto traducido.
+ */
+private String translateBrailleText(String combinedBrailleText) {
+    if (isNumberMode) {
+        return translator.translateToSpanishNumbersOnly(combinedBrailleText);
+    } else {
+        return translator.translateToSpanish(combinedBrailleText);
+    }
+}
+
+/**
+ * Muestra un mensaje de error si la combinación de puntos no existe en el diccionario de traducción.
+ */
+private void showTranslationError() {
+    JOptionPane.showMessageDialog(this,
+            "La traducción para la combinación ingresada no existe en el diccionario.",
+            "Error de Traducción", JOptionPane.ERROR_MESSAGE);
+}
+
+/**
+ * Actualiza los campos del formulario con la traducción y el texto Braille en Unicode.
+ *
+ * @param targetCellText Texto de la celda Braille adicional.
+ * @param cellText Texto de la celda Braille actual.
+ * @param translation Texto traducido.
+ */
+private void updateFormFields(String targetCellText, String cellText, String translation) {
+    if (!targetCellText.isEmpty()) {
+        String targetBrailleUnicode = translator.brailleToUnicode(targetCellText);
+        this.jTALenEntrada.append(targetBrailleUnicode);
+    }
+
+    this.jTLenSalida.append(translation);
+    String brailleUnicode = translator.brailleToUnicode(cellText);
+    this.jTALenEntrada.append(brailleUnicode);
+    this.jTALenEntrada.append(" ");
+}
+
+/**
+ * Limpia los puntos activados de las celdas Braille y repinta el panel Braille.
+ */
+private void clearBrailleCells() {
+    if (additionalBrailleCell != null) {
+        additionalBrailleCell.clearPoints();
+    }
+
+    currentBrailleCell.clearPoints();
+    braillePanel.repaint();
+}
+
+/**
+ * Actualiza el diseño del panel Braille si el modo de mayúsculas o el modo de número están activados.
+ */
+private void updateBraillePanelIfNeeded() {
+    if (isUpperCaseMode || isNumberMode) {
+        updateBraillePanelLayout();
+    }
+}
+
 
     /**
      * Obtiene el texto de la celda objetivo (mayúsculas o números).
