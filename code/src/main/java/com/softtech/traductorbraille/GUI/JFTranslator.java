@@ -396,7 +396,6 @@ public class JFTranslator extends javax.swing.JFrame {
             currentBrailleCell.setPoint(index, !currentState);
             braillePanel.repaint();
         } else if (keyCode == KeyEvent.VK_ENTER) {
-            clearTextFields();
             translateText();
             totalBrailleTranslation+=" ";  
         } else if (keyCode == KeyEvent.VK_SPACE) {
@@ -456,7 +455,21 @@ public class JFTranslator extends javax.swing.JFrame {
     }
 
     /**
-     * Traduce la celda Braille actual a texto.
+     * Traduce la celda Braille actual a texto, usando la clase Translator y coloca los resultados en el formulario.
+     * <p>
+     * Este método realiza los siguientes pasos:
+     * <ol>
+     *     <li>Obtiene los puntos activados en la celda Braille actual y, si está presente, en una celda Braille adicional.</li>
+     *     <li>Combina los textos Braille obtenidos de ambas celdas.</li>
+     *     <li>Determina si el modo de número está activado y realiza la traducción correspondiente, ya sea traduciendo solo números o
+     *         traduciendo normalmente.</li>
+     *     <li>Actualiza la traducción total del Braille con el texto recién traducido.</li>
+     *     <li>Muestra un mensaje de error si la combinación de puntos no existe en el diccionario de traducción.</li>
+     *     <li>Convierte el texto Braille a Unicode y lo agrega al campo de texto Braille del formulario.</li>
+     *     <li>Si hay una celda Braille adicional, limpia sus puntos activados.</li>
+     *     <li>Limpia los puntos activados de la celda Braille actual y repinta el panel Braille.</li>
+     *     <li>Actualiza el diseño del panel Braille si el modo de mayúsculas o el modo de número están activados.</li>
+     * </ol>
      */
     private void translateCurrentBrailleCell() {
         StringBuilder cellText = new StringBuilder();
@@ -468,32 +481,56 @@ public class JFTranslator extends javax.swing.JFrame {
             }
         }
 
-        if (isUpperCaseMode) {
-            targetCellText.append(getTargetCellText(additionalBrailleCell));
-            targetCellText.append(" ");
-            firstTime = true;
-        }
-        
-        if(isNumberMode && firstTime){
-            targetCellText.append(getTargetCellText(additionalBrailleCell));
-            targetCellText.append(" ");
-            firstTime = false;
+        if (additionalBrailleCell != null) {
+            for (int i = 0; i < BRAILLE_INDEX_MAPPING.length; i++) {
+                if (additionalBrailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
+                    targetCellText.append(i + 1);
+                }
+            }
         }
 
-        String combinedText = targetCellText.toString() + cellText.toString();        
-        totalBrailleTranslation += combinedText;
-        String translatedText = translator.translateToSpanish(totalBrailleTranslation);
+        String brailleText = cellText.toString();
+        String targetBrailleText = targetCellText.toString();
 
-        if (translatedText.equals("?")) {
+        String combinedBrailleText = (targetBrailleText.isEmpty() ? "" : targetBrailleText + " ") + brailleText;
+        String translation;
+
+        if (isNumberMode) {
+            // Si está en modo de número, solo traducir números
+            translation = translator.translateToSpanishNumbersOnly(combinedBrailleText);
+        } else {
+            // Si no está en modo de número, traducir normalmente
+            translation = translator.translateToSpanish(combinedBrailleText);
+        }
+
+        if (translation.equals("?")) {
             JOptionPane.showMessageDialog(this,
                     "La traducción para la combinación ingresada no existe en el diccionario.",
                     "Error de Traducción", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        this.jTASpanish.append(translatedText);
-        String brailleUnicode = translator.brailleToUnicode(totalBrailleTranslation);
+        if (additionalBrailleCell != null) {
+            String targetBrailleUnicode = translator.brailleToUnicode(targetBrailleText);
+            this.jTBraille.append(targetBrailleUnicode);
+        }
+
+        this.jTASpanish.append(translation);
+        String brailleUnicode = translator.brailleToUnicode(brailleText);
         this.jTBraille.append(brailleUnicode);
+
+        this.jTBraille.append(" ");
+
+        if (additionalBrailleCell != null) {
+            additionalBrailleCell.clearPoints();
+        }
+
+        currentBrailleCell.clearPoints();
+        braillePanel.repaint();
+
+        if (isUpperCaseMode || isNumberMode) {
+            updateBraillePanelLayout();
+        }
     }
 
     /**
