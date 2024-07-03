@@ -151,6 +151,11 @@ public class JFTranslator extends javax.swing.JFrame {
                 jCBMayusculasItemStateChanged(evt);
             }
         });
+        jCBMayusculas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBMayusculasActionPerformed(evt);
+            }
+        });
 
         jCBNumeros.setText("Números (Ctrl+)");
         jCBNumeros.setEnabled(false);
@@ -205,18 +210,13 @@ public class JFTranslator extends javax.swing.JFrame {
         jPBrailleLayout.setHorizontalGroup(
             jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPBrailleLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPBrailleLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPBrailleLayout.createSequentialGroup()
-                        .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPBrailleLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jLabel4))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPBrailleLayout.createSequentialGroup()
-                                .addGap(95, 95, 95)
-                                .addComponent(jPCuadratin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addComponent(jPCuadratin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -232,10 +232,9 @@ public class JFTranslator extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPBrailleLayout.createSequentialGroup()
                 .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPBrailleLayout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                        .addComponent(jPCuadratin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPBrailleLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jSeparator1))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPBrailleLayout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(18, 18, 18)
                         .addComponent(jCBMayusculas, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -243,8 +242,9 @@ public class JFTranslator extends javax.swing.JFrame {
                         .addComponent(jCBNumeros, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPBrailleLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jSeparator1)))
+                        .addComponent(jLabel4)
+                        .addGap(8, 8, 8)
+                        .addComponent(jPCuadratin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(6, 6, 6)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 334, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -753,13 +753,17 @@ public class JFTranslator extends javax.swing.JFrame {
         prev.setVisible(true);
     }//GEN-LAST:event_jMImprimirActionPerformed
 
-    private void jTBrailleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTBrailleFocusGained
-        handleFocusGainedOnBraille();
-    }//GEN-LAST:event_jTBrailleFocusGained
-
     private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained
         handleFocusGainedOnBraille();
     }//GEN-LAST:event_jTASpanishFocusGained
+
+    private void jCBMayusculasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBMayusculasActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCBMayusculasActionPerformed
+
+    private void jTBrailleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTBrailleFocusGained
+        handleFocusGainedOnBraille();
+    }//GEN-LAST:event_jTBrailleFocusGained
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
