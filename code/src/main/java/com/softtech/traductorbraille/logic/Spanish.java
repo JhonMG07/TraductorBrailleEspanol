@@ -1,11 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.softtech.traductorbraille.logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -14,113 +12,80 @@ import java.util.List;
 public class Spanish extends Language{
 
     /**
-     * convertir un texto en español a braille
-     * @param spanishText
-     * @return cadena en braille
+     * Traduce una cadena de texto en Braille a español.
+     * <p>
+     * Este método convierte cada carácter Braille en su equivalente en español, manejando modos de números y mayúsculas.
+     * <p>
+     * Los pasos específicos incluyen:
+     * <ul>
+     *     <li>Detectar el modo de número utilizando la secuencia Braille "3456".</li>
+     *     <li>Convertir los caracteres Braille alfabéticos y numéricos de acuerdo a su contexto (modo de número, modo de mayúsculas).</li>
+     *     <li>Detectar el modo de mayúsculas utilizando la secuencia Braille "46".</li>
+     * </ul>
+     *
+     * @param brailleText Cadena de texto en Braille a traducir.
+     * @return Cadena traducida en español.
      */
     @Override
-    public String translateTo(String spanishText) {
-        StringBuilder brailleText = new StringBuilder();
-        boolean isNumber = false;
-        char[] spanishTextArray = spanishText.toCharArray();
+    public String translateFrom(String brailleText) {
+        StringBuilder translatedText = new StringBuilder();
+        boolean isNumberMode = false;
+        boolean isCapital = false;
 
-        for (char ch : spanishTextArray) {
-            String brailleValue = dictionary.getBrailleValue(ch);
+        String[] brailleTextArray = extractBrailleText(brailleText);
 
-            if (isWhitespace(ch)) {
-                brailleText.append(brailleValue);
-            } else if (!brailleValue.isEmpty()) {
-                List<Character> brailleChars = brailleCodeToQuadratin(brailleValue);
-                isNumber = handleNumberSequence(ch, isNumber, brailleChars);
-                addCharacterToText(brailleChars, brailleText);
+        for (int i = 0; i < brailleTextArray.length; i++) {
+            String translatedChar;
+            String auxiliary = brailleTextArray[i];
+            if (brailleTextArray[i].equals("3456")) {
+                isNumberMode = true;
+                continue;
             }
+            if (isNumberMode) {
+                auxiliary = "3456 " + brailleTextArray[i];
+                if (isAlphabeticCharacter(auxiliary) && !isPeriodOrComma(brailleTextArray[i])) {
+                    auxiliary = brailleTextArray[i];
+                    isNumberMode = false;
+                }
+                if (isPeriodOrComma(brailleTextArray[i])) {
+                    auxiliary = brailleTextArray[i];
+                }
+            }
+
+            if (brailleTextArray[i].equals("46")) {
+                isCapital = true;
+                continue;
+            }
+            
+            if(isCapital){
+                auxiliary = "46 " + brailleTextArray[i];
+                isCapital = false;
+            }
+
+            translatedChar = dictionary.getSpanishValue(auxiliary);
+
+            translatedText.append(translatedChar);
         }
 
-        return brailleText.toString().trim();
+        return translatedText.toString();
     }
     
     /**
-     * verifica si el caracter es espacio en blanco
-     * @param ch
+     * Verifica si el caracter braille es punto o coma.
+     * @param brailleText
+     * @return boolena
+     */
+    private boolean isPeriodOrComma(String brailleText) {
+        return brailleText.equals("3") || brailleText.equals("2");
+    }
+
+    /**
+     * Verifica si el caracter braille es alfabetico
+     *
+     * @param code
      * @return boolean
      */
-    private boolean isWhitespace(char ch) {
-        return ch == ' ' || ch == '\n' || ch == '\t';
-    }
-    
-    /**
-     * transformar codigo braille a cuadratin
-     * @param dots
-     * @return cuadratin
-     */
-    private List<Character> brailleCodeToQuadratin(String dots) {
-        List<Character> brailleChars = new ArrayList<>();
-        String[] segments = dots.split(" ");
-        for (String segment : segments) {
-            if (!segment.isEmpty()) {
-                brailleChars.add(brailleCharFromSegment(segment));
-            }
-        }
-        return brailleChars;
-    }
-    
-    /**
-     * Convertir cadena de puntos en braille
-     * @param dots puntos activos del cuadratin
-     * @return caracter braille en Unicode
-     */
-    private char brailleCharFromSegment(String dots) {
-        int baseUnicode = 0x2800;
-        int brailleValue = 0;
-        for (char dot : dots.toCharArray()) {
-            switch (dot) {
-                case '1' ->
-                    brailleValue |= 0x01;
-                case '2' ->
-                    brailleValue |= 0x02;
-                case '3' ->
-                    brailleValue |= 0x04;
-                case '4' ->
-                    brailleValue |= 0x08;
-                case '5' ->
-                    brailleValue |= 0x10;
-                case '6' ->
-                    brailleValue |= 0x20;
-                default ->
-                    brailleValue = 0;
-            }
-        }
-        return (char) (baseUnicode + brailleValue);
-    }
-    
-    /**
-     * identificar y ajustar caracteres numericos braille para español
-     * @param ch
-     * @param isNumber
-     * @param brailleChars
-     * @return boolean
-     */
-    private boolean handleNumberSequence(char ch, boolean isNumber, List<Character> brailleChars) {
-        if (Character.isDigit(ch) || ch == '.' || ch == ',') {
-            if (isNumber && Character.isDigit(ch)) {
-                brailleChars.remove(0);
-            } else if (Character.isDigit(ch)) {
-                isNumber = true;
-            }
-        } else {
-            isNumber = false;
-        }
-        return isNumber;
-    }
-    
-    /**
-     * añadir caracter braille a la lista de caracteres braille
-     * @param characters lista de caracteres braille
-     * @param text cadena en braille
-     */
-    private void addCharacterToText(List<Character> characters, StringBuilder text) {
-        for (char element : characters) {
-            text.append(element);
-        }
+    private boolean isAlphabeticCharacter(String auxiliary) {
+        return !dictionary.isExistInBrailleMap(auxiliary);
     }
 }

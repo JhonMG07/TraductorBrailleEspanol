@@ -1,6 +1,9 @@
 package com.softtech.traductorbraille.GUI;
 
+import com.softtech.traductorbraille.logic.Spanish;
+import com.softtech.traductorbraille.logic.Braille;
 import com.softtech.traductorbraille.logic.Translator;
+import com.softtech.traductorbraille.logic.TranslatorManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -21,7 +24,7 @@ import javax.swing.JOptionPane;
  */
 public class JFTranslatorGUI extends javax.swing.JFrame {
 
-    private Translator translator = new Translator();
+    private TranslatorManager translator = new TranslatorManager();
     
     private int x;
     private int y;
@@ -32,12 +35,14 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
 
     private boolean isUpperCaseMode = false;
     private boolean isNumberMode = false;
+    private String totalBrailleTranslation = new String();
 
     private static final int[] BRAILLE_INDEX_MAPPING = {0, 2, 4, 1, 3, 5};
     private static final int[] KEY_EVENT_MAPPING = {
         KeyEvent.VK_NUMPAD1, KeyEvent.VK_NUMPAD2, KeyEvent.VK_NUMPAD3,
         KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD6
     };
+    private boolean firstTime = true;
 
     /**
      * Creates new form JFTranslatorGUI
@@ -139,8 +144,20 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
             braillePanel.repaint();
         } else if (keyCode == KeyEvent.VK_ENTER) {
             translateText(); 
+            totalBrailleTranslation+=" ";
         } else if (keyCode == KeyEvent.VK_SPACE) {
             addSpace();
+        }
+    }
+    
+    public void checkLastCharacterAndUnselect(String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+
+        char lastChar = text.charAt(text.length() - 1);
+        if (!Character.isDigit(lastChar) && lastChar != '.' && lastChar != ',') {
+            jCBNumeros.setSelected(false);
         }
     }
 
@@ -148,6 +165,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
      * Agrega un espacio en la traducción Braille y los campos de texto correspondientes.
      */
     private void addSpace() {
+        totalBrailleTranslation += "  ";
         this.jTALenEntrada.append("  ");
         this.jTLenSalida.append("⠀");
         currentBrailleCell.clearPoints();
@@ -178,8 +196,10 @@ private void translateCurrentBrailleCell() {
     String targetCellText = additionalBrailleCell != null ? getBrailleCellText(additionalBrailleCell) : "";
 
     String combinedBrailleText = combineBrailleTexts(targetCellText, cellText);
-    String translation = translateBrailleText(combinedBrailleText);
+    totalBrailleTranslation+= combinedBrailleText;
+    String translation = translator.translate(totalBrailleTranslation);
 
+    //TODO: CORREGIR ESTO LOS ERRORES SE CONTROLAN EN LÓGICA
     if (translation.equals("?")) {
         showTranslationError();
         return;
@@ -188,6 +208,9 @@ private void translateCurrentBrailleCell() {
     updateFormFields(targetCellText, cellText, translation);
     clearBrailleCells();
     updateBraillePanelIfNeeded();
+    checkLastCharacterAndUnselect(translation);
+    //TODO: BORRAR DESPUES DE LAS PRUEBAS
+    System.out.println(totalBrailleTranslation);
 }
 
 /**
@@ -220,20 +243,6 @@ private String combineBrailleTexts(String targetCellText, String cellText) {
 }
 
 /**
- * Traduce el texto Braille basado en el modo de traducción actual.
- *
- * @param combinedBrailleText Texto Braille combinado a traducir.
- * @return Texto traducido.
- */
-private String translateBrailleText(String combinedBrailleText) {
-    if (isNumberMode) {
-        return translator.translateToSpanishNumbersOnly(combinedBrailleText);
-    } else {
-        return translator.translateToSpanish(combinedBrailleText);
-    }
-}
-
-/**
  * Muestra un mensaje de error si la combinación de puntos no existe en el diccionario de traducción.
  */
 private void showTranslationError() {
@@ -250,13 +259,11 @@ private void showTranslationError() {
  * @param translation Texto traducido.
  */
 private void updateFormFields(String targetCellText, String cellText, String translation) {
-    if (!targetCellText.isEmpty()) {
-        String targetBrailleUnicode = translator.brailleToUnicode(targetCellText);
-        this.jTALenEntrada.append(targetBrailleUnicode);
-    }
+    this.clearTextFields();
+    Braille brailleTranslator = new Braille();
 
     this.jTLenSalida.append(translation);
-    String brailleUnicode = translator.brailleToUnicode(cellText);
+    String brailleUnicode = brailleTranslator.brailleToQuadratin(totalBrailleTranslation);
     this.jTALenEntrada.append(brailleUnicode);
     this.jTALenEntrada.append(" ");
 }
@@ -329,8 +336,9 @@ private void updateBraillePanelIfNeeded() {
         if (additionalBrailleCell != null) {
             if (isUpperCaseMode) {
                 setAdditionalCellPoints(true, true, false, false);
-            } else if (isNumberMode) {
+            } else if (isNumberMode && firstTime) {
                 setAdditionalCellPoints(true, true, true, true);
+                firstTime = false;
             }
         }
     }
@@ -356,6 +364,7 @@ private void updateBraillePanelIfNeeded() {
     private void upperCaseSelect() {
         isUpperCaseMode = !isUpperCaseMode;
         isNumberMode = false;
+        firstTime = true;
         updateBraillePanelLayout();
         requestFocusInWindow();
     }
@@ -364,7 +373,7 @@ private void updateBraillePanelIfNeeded() {
      * Activa/desactiva el modo números.
      */
     private void numberCaseSelect() {
-        isNumberMode = !isNumberMode;
+        isNumberMode = !isNumberMode;        
         isUpperCaseMode = false;
         updateBraillePanelLayout();
         requestFocusInWindow();
@@ -399,10 +408,12 @@ private void updateBraillePanelIfNeeded() {
      */
     private void translateText() {
         if (getTranslationMode()) {
-            String spanishText = this.jTALenEntrada.getText();
-            this.jTLenSalida.setText(translator.translateToBraille(spanishText));
+            translator.setLanguage(new Braille());
+            String spanishText = this.jTALenEntrada.getText();            
+            this.jTLenSalida.setText(translator.translate(spanishText));
         } else {
-            if (canTranslate()) {
+            if (canTranslate()) {                
+                translator.setLanguage(new Spanish());
                 translateCurrentBrailleCell();
                 currentBrailleCell.clearPoints();
                 if (additionalBrailleCell != null) {
@@ -1104,6 +1115,7 @@ private void updateBraillePanelIfNeeded() {
 
     private void jBBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBBorrarActionPerformed
         clearTextFields();
+        totalBrailleTranslation ="";
     }//GEN-LAST:event_jBBorrarActionPerformed
 
     private void jBIntercambioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBIntercambioActionPerformed
@@ -1134,6 +1146,7 @@ private void updateBraillePanelIfNeeded() {
             this.jCBMayusculas.setSelected(false);
         } else {
             isNumberMode = false;
+            firstTime = true;
             updateBraillePanelLayout();
         }
     }//GEN-LAST:event_jCBNumerosItemStateChanged

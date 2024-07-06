@@ -128,7 +128,7 @@ public class Dictionary {
      * @return braille caracter
      */
     public String getBrailleValue(char ch) {
-        return spanishMap.getOrDefault(String.valueOf(ch), "");
+        return spanishMap.getOrDefault(String.valueOf(ch), "□");
     }
 
     /**
@@ -138,17 +138,17 @@ public class Dictionary {
      * @return español caracter
      */
     public String getSpanishValue(String key) {
-        return brailleMap.getOrDefault(String.valueOf(key), "?");
+        return brailleMap.getOrDefault(String.valueOf(key), "□");
     }
 
     /**
-     * Verifica si el caracter braille es alfabetico
+     * Verifica si el caracter braille existe en el diccionario
      *
      * @param code
      * @return boolean
      */
-    public boolean isAlphabeticCharacter(String code) {
-        return brailleMap.getOrDefault(code, "??").equals("??");
+    public boolean isExistInBrailleMap(String code) {
+        return !brailleMap.getOrDefault(code, "??").equals("??");
     }
 
 }
