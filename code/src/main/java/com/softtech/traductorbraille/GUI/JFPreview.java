@@ -1,5 +1,6 @@
 package com.softtech.traductorbraille.GUI;
 
+import com.softtech.traductorbraille.logic.BrailleDictionary;
 import com.softtech.traductorbraille.logic.Printer.MirrorPrinter;
 import com.softtech.traductorbraille.logic.Printer.NormalPrinter;
 import com.softtech.traductorbraille.logic.Translator;
@@ -25,6 +26,7 @@ public class JFPreview extends javax.swing.JFrame {
     private int fontSize;
     private final NormalPrinter normal;
     private final MirrorPrinter mirror;
+    private final BrailleDictionary mirrorBraille;
 
     /**
      * Crea una nueva instancia de JFPreview.
@@ -38,8 +40,8 @@ public class JFPreview extends javax.swing.JFrame {
         this.fontSize = size;
         normal = new NormalPrinter();
         mirror = new MirrorPrinter();
-        Translator translator = new Translator();
-        mirrorText = translator.generateBrailleMirror(texto);
+        mirrorBraille = new BrailleDictionary();
+        mirrorText = mirrorBraille.generateBrailleMirror(texto);
         previewText();
         setLocationRelativeTo(null);
     }
