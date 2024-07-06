@@ -552,6 +552,11 @@ private void updateBraillePanelIfNeeded() {
         jBImprimir.setIconTextGap(2);
         jBImprimir.setPreferredSize(new java.awt.Dimension(40, 40));
         jBImprimir.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jBImprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBImprimirActionPerformed(evt);
+            }
+        });
 
         jTATitulo.setEditable(false);
         jTATitulo.setBackground(new java.awt.Color(204, 204, 204));
@@ -1145,6 +1150,16 @@ private void updateBraillePanelIfNeeded() {
     private void jBTraducirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBTraducirActionPerformed
         translateText();
     }//GEN-LAST:event_jBTraducirActionPerformed
+
+    private void jBImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBImprimirActionPerformed
+        // TODO add your handling code here:
+        if (jTLenSalida.getText().isBlank()){
+            JOptionPane.showMessageDialog(null, "Error al imprimir: " + "No existe texto traducido para imprimir", "Error de Impresión", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JFPreview exportFrame = new JFPreview(jTLenSalida.getText(), Integer.parseInt(jComboBoxTamañoLetra.getSelectedItem().toString())); // Crear una instancia de JFExport
+        exportFrame.setVisible(true); 
+    }//GEN-LAST:event_jBImprimirActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel JPBrailleMenu;
