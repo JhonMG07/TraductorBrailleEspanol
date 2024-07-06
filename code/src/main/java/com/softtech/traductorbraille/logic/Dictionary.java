@@ -147,7 +147,7 @@ public class Dictionary {
      * @param code
      * @return boolean
      */
-    private boolean isAlphabeticCharacter(String code) {
+    public boolean isAlphabeticCharacter(String code) {
         return brailleMap.getOrDefault(code, "??").equals("??");
     }
 
