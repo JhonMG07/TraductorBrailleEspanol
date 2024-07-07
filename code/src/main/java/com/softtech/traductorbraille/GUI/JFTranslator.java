@@ -151,11 +151,6 @@ public class JFTranslator extends javax.swing.JFrame {
                 jCBMayusculasItemStateChanged(evt);
             }
         });
-        jCBMayusculas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCBMayusculasActionPerformed(evt);
-            }
-        });
 
         jCBNumeros.setText("Números (Ctrl+)");
         jCBNumeros.setEnabled(false);
@@ -210,13 +205,18 @@ public class JFTranslator extends javax.swing.JFrame {
         jPBrailleLayout.setHorizontalGroup(
             jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPBrailleLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPBrailleLayout.createSequentialGroup()
-                        .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jPCuadratin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPBrailleLayout.createSequentialGroup()
+                        .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPBrailleLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel4))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPBrailleLayout.createSequentialGroup()
+                                .addGap(95, 95, 95)
+                                .addComponent(jPCuadratin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -232,9 +232,10 @@ public class JFTranslator extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPBrailleLayout.createSequentialGroup()
                 .addGroup(jPBrailleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPBrailleLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jSeparator1))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPBrailleLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                        .addComponent(jPCuadratin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPBrailleLayout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(18, 18, 18)
                         .addComponent(jCBMayusculas, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -242,9 +243,8 @@ public class JFTranslator extends javax.swing.JFrame {
                         .addComponent(jCBNumeros, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPBrailleLayout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addGap(8, 8, 8)
-                        .addComponent(jPCuadratin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap()
+                        .addComponent(jSeparator1)))
                 .addGap(6, 6, 6)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 334, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -396,6 +396,7 @@ public class JFTranslator extends javax.swing.JFrame {
             currentBrailleCell.setPoint(index, !currentState);
             braillePanel.repaint();
         } else if (keyCode == KeyEvent.VK_ENTER) {
+            clearTextFields();
             translateText();
             totalBrailleTranslation+=" ";  
         } else if (keyCode == KeyEvent.VK_SPACE) {
@@ -455,21 +456,7 @@ public class JFTranslator extends javax.swing.JFrame {
     }
 
     /**
-     * Traduce la celda Braille actual a texto, usando la clase Translator y coloca los resultados en el formulario.
-     * <p>
-     * Este método realiza los siguientes pasos:
-     * <ol>
-     *     <li>Obtiene los puntos activados en la celda Braille actual y, si está presente, en una celda Braille adicional.</li>
-     *     <li>Combina los textos Braille obtenidos de ambas celdas.</li>
-     *     <li>Determina si el modo de número está activado y realiza la traducción correspondiente, ya sea traduciendo solo números o
-     *         traduciendo normalmente.</li>
-     *     <li>Actualiza la traducción total del Braille con el texto recién traducido.</li>
-     *     <li>Muestra un mensaje de error si la combinación de puntos no existe en el diccionario de traducción.</li>
-     *     <li>Convierte el texto Braille a Unicode y lo agrega al campo de texto Braille del formulario.</li>
-     *     <li>Si hay una celda Braille adicional, limpia sus puntos activados.</li>
-     *     <li>Limpia los puntos activados de la celda Braille actual y repinta el panel Braille.</li>
-     *     <li>Actualiza el diseño del panel Braille si el modo de mayúsculas o el modo de número están activados.</li>
-     * </ol>
+     * Traduce la celda Braille actual a texto.
      */
     private void translateCurrentBrailleCell() {
         StringBuilder cellText = new StringBuilder();
@@ -481,56 +468,32 @@ public class JFTranslator extends javax.swing.JFrame {
             }
         }
 
-        if (additionalBrailleCell != null) {
-            for (int i = 0; i < BRAILLE_INDEX_MAPPING.length; i++) {
-                if (additionalBrailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
-                    targetCellText.append(i + 1);
-                }
-            }
+        if (isUpperCaseMode) {
+            targetCellText.append(getTargetCellText(additionalBrailleCell));
+            targetCellText.append(" ");
+            firstTime = true;
+        }
+        
+        if(isNumberMode && firstTime){
+            targetCellText.append(getTargetCellText(additionalBrailleCell));
+            targetCellText.append(" ");
+            firstTime = false;
         }
 
-        String brailleText = cellText.toString();
-        String targetBrailleText = targetCellText.toString();
+        String combinedText = targetCellText.toString() + cellText.toString();        
+        totalBrailleTranslation += combinedText;
+        String translatedText = translator.translateToSpanish(totalBrailleTranslation);
 
-        String combinedBrailleText = (targetBrailleText.isEmpty() ? "" : targetBrailleText + " ") + brailleText;
-        String translation;
-
-        if (isNumberMode) {
-            // Si está en modo de número, solo traducir números
-            translation = translator.translateToSpanishNumbersOnly(combinedBrailleText);
-        } else {
-            // Si no está en modo de número, traducir normalmente
-            translation = translator.translateToSpanish(combinedBrailleText);
-        }
-
-        if (translation.equals("?")) {
+        if (translatedText.equals("?")) {
             JOptionPane.showMessageDialog(this,
                     "La traducción para la combinación ingresada no existe en el diccionario.",
                     "Error de Traducción", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (additionalBrailleCell != null) {
-            String targetBrailleUnicode = translator.brailleToUnicode(targetBrailleText);
-            this.jTBraille.append(targetBrailleUnicode);
-        }
-
-        this.jTASpanish.append(translation);
-        String brailleUnicode = translator.brailleToUnicode(brailleText);
+        this.jTASpanish.append(translatedText);
+        String brailleUnicode = translator.brailleToUnicode(totalBrailleTranslation);
         this.jTBraille.append(brailleUnicode);
-
-        this.jTBraille.append(" ");
-
-        if (additionalBrailleCell != null) {
-            additionalBrailleCell.clearPoints();
-        }
-
-        currentBrailleCell.clearPoints();
-        braillePanel.repaint();
-
-        if (isUpperCaseMode || isNumberMode) {
-            updateBraillePanelLayout();
-        }
     }
 
     /**
@@ -790,17 +753,13 @@ public class JFTranslator extends javax.swing.JFrame {
         prev.setVisible(true);
     }//GEN-LAST:event_jMImprimirActionPerformed
 
-    private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained
-        handleFocusGainedOnBraille();
-    }//GEN-LAST:event_jTASpanishFocusGained
-
-    private void jCBMayusculasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBMayusculasActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCBMayusculasActionPerformed
-
     private void jTBrailleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTBrailleFocusGained
         handleFocusGainedOnBraille();
     }//GEN-LAST:event_jTBrailleFocusGained
+
+    private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained
+        handleFocusGainedOnBraille();
+    }//GEN-LAST:event_jTASpanishFocusGained
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
