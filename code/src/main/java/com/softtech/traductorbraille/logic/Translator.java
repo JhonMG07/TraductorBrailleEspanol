@@ -19,7 +19,7 @@ public class Translator {
 
     private static final Map<String, String> brailleMap = new HashMap<>();
     private static final Map<String, String> reverseBrailleMap = new HashMap<>();
-
+    private static final Map<Character, Character> brailleMirrorMap = new HashMap<>();
     static {
         brailleMap.put("\t", "\t");
         brailleMap.put("  ", " ");
@@ -86,7 +86,49 @@ public class Translator {
         brailleMap.put("3456 24", "9");
         brailleMap.put("3456 245", "0");
         
-           
+        brailleMirrorMap.put('⠁', '⠈'); 
+        brailleMirrorMap.put('⠃', '⠘');  
+        brailleMirrorMap.put('⠉', '⠉'); 
+        brailleMirrorMap.put('⠙', '⠋');  
+        brailleMirrorMap.put('⠑', '⠊'); 
+        brailleMirrorMap.put('⠋', '⠙');  
+        brailleMirrorMap.put('⠦', '⠴');  
+        brailleMirrorMap.put('⠊', '⠑'); 
+        brailleMirrorMap.put('⠚', '⠓');
+        brailleMirrorMap.put('⠓', '⠚');  
+        brailleMirrorMap.put('⠅', '⠨');       
+        brailleMirrorMap.put('⠇','⠸');              
+        brailleMirrorMap.put('⠍', '⠩'); 
+        brailleMirrorMap.put('⠝', '⠫');  
+        brailleMirrorMap.put('⠕', '⠪');  
+        brailleMirrorMap.put('⠏', '⠹'); 
+        brailleMirrorMap.put('⠟','⠻');
+        brailleMirrorMap.put('⠗', '⠺'); 
+        brailleMirrorMap.put('⠎', '⠱'); 
+        brailleMirrorMap.put('⠞','⠳');
+        brailleMirrorMap.put('⠥', '⠬'); 
+        brailleMirrorMap.put('⠧', '⠼'); 
+        brailleMirrorMap.put('⠺', '⠗'); 
+        brailleMirrorMap.put('⠭', '⠭'); 
+        brailleMirrorMap.put('⠽','⠯');  
+        brailleMirrorMap.put('⠵', '⠮'); 
+        brailleMirrorMap.put('⠷','⠾');
+        brailleMirrorMap.put('⠾','⠷');
+        brailleMirrorMap.put('⠬', '⠥');
+        brailleMirrorMap.put('⠮','⠵');
+        brailleMirrorMap.put('⠌','⠡');     
+        brailleMirrorMap.put('⠼','⠧');
+        brailleMirrorMap.put('⠂', '⠐');
+        brailleMirrorMap.put('⠦', '⠴'); 
+        brailleMirrorMap.put('⠖', '⠲'); 
+        brailleMirrorMap.put('⠲', '⠖'); 
+        brailleMirrorMap.put('⠆', '⠰');        
+        brailleMirrorMap.put('⠜','⠣'); 
+        brailleMirrorMap.put('⠣','⠜'); 
+        brailleMirrorMap.put('⠄','⠠'); 
+        brailleMirrorMap.put('⠢','⠔');     
+        
+        
         createUppercaseAlphabet();
         createReverseMap();
     }
@@ -385,7 +427,21 @@ public class Translator {
         return quadratsString.toString();
     }
     
+    /**
+     * transformar texto braille en su forma expejo
+     * @param brailleText
+     * @return braille en espejo
+     */
+    public String generateBrailleMirror(String brailleText) {
+        String reversedText = new StringBuilder(brailleText).reverse().toString();
+        StringBuilder mirroredText = new StringBuilder();
+        for (char ch : reversedText.toCharArray()) {
+            mirroredText.append(brailleMirrorMap.getOrDefault(ch, ch));
+        }
 
+
+        return mirroredText.toString();
+    }
     /**
      * Verifica si el caracter braille es punto o coma.
      * @param brailleText
