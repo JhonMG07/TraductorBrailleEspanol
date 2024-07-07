@@ -1,6 +1,5 @@
 package com.softtech.traductorbraille.GUI;
 
-import com.softtech.traductorbraille.logic.TextFormatter;
 import com.softtech.traductorbraille.logic.Translator;
 import com.softtech.traductorbraille.logic.VoiceService;
 import java.awt.Color;
@@ -24,10 +23,10 @@ import javax.swing.JOptionPane;
 public class JFTranslatorGUI extends javax.swing.JFrame {
 
     private Translator translator = new Translator();
-    private TextFormatter textFormat = new TextFormatter();
+
     private boolean flag = true;
     private VoiceService voiceListener;
-  
+
     private int x;
     private int y;
     private Color selectedColor = Color.BLACK;
@@ -103,8 +102,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         String title;
         String brailleLabel;
         String spanishLabel;
-        
-        textFormat.setTranslationMode(isSpanishToBraille);
 
         if (isSpanishToBraille) {
             title = "Brailingo - Traductor: Braille -> Español";
@@ -123,12 +120,8 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         this.jTATitulo.setText(title);
         this.jLBrailleEntrada.setText(brailleLabel);
         this.jLEspañolEntrada.setText(spanishLabel);
-    
         this.jLLenEntrada.setText(spanishLabel);
         this.jLLenSalida.setText(brailleLabel);
-        
-        textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
-        resetFormattingOptions();
     }
 
     /**
@@ -137,19 +130,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
     private void switchTranslationMode() {
         setTranslationMode(getTranslationMode());
         clearTextFields();
-        textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
-    }
-    
-    /**
-    * Restablece las opciones de formato a sus valores predeterminados.
-    * 
-    * Este método restablece las opciones de tamaño de letra, negrita y cursiva
-    * en los componentes de interfaz correspondientes.
-    */
-    private void resetFormattingOptions() {
-        jComboBoxTamañoLetra.setSelectedIndex(0);
-        jCheckBoxCursiva.setSelected(false);
-        jCheckBoxNegrita.setSelected(false);
     }
 
     /**
@@ -254,86 +234,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
             if (brailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
                 cellText.append(i + 1);
             }
-        }
-
-        return cellText.toString();
-    }
-
-    /**
-     * Combina los textos Braille obtenidos de dos celdas.
-     *
-     * @param targetCellText Texto de la celda Braille adicional.
-     * @param cellText Texto de la celda Braille actual.
-     * @return Texto Braille combinado.
-     */
-    private String combineBrailleTexts(String targetCellText, String cellText) {
-        return (targetCellText.isEmpty() ? "" : targetCellText + " ") + cellText;
-    }
-
-    /**
-     * Traduce el texto Braille basado en el modo de traducción actual.
-     *
-     * @param combinedBrailleText Texto Braille combinado a traducir.
-     * @return Texto traducido.
-     */
-    private String translateBrailleText(String combinedBrailleText) {
-        if (isNumberMode) {
-            return translator.translateToSpanishNumbersOnly(combinedBrailleText);
-        } else {
-            return translator.translateToSpanish(combinedBrailleText);
-        }
-    }
-
-    /**
-     * Muestra un mensaje de error si la combinación de puntos no existe en el
-     * diccionario de traducción.
-     */
-    private void showTranslationError() {
-        JOptionPane.showMessageDialog(this,
-                "La traducción para la combinación ingresada no existe en el diccionario.",
-                "Error de Traducción", JOptionPane.ERROR_MESSAGE);
-    }
-
-    /**
-     * Actualiza los campos del formulario con la traducción y el texto Braille
-     * en Unicode.
-     *
-     * @param targetCellText Texto de la celda Braille adicional.
-     * @param cellText Texto de la celda Braille actual.
-     * @param translation Texto traducido.
-     */
-    private void updateFormFields(String targetCellText, String cellText, String translation) {
-        if (!targetCellText.isEmpty()) {
-            String targetBrailleUnicode = translator.brailleToUnicode(targetCellText);
-            this.jTALenEntrada.append(targetBrailleUnicode);
-        }
-
-        this.jTLenSalida.append(translation);
-        String brailleUnicode = translator.brailleToUnicode(cellText);
-        this.jTALenEntrada.append(brailleUnicode);
-        this.jTALenEntrada.append(" ");
-    }
-
-    /**
-     * Limpia los puntos activados de las celdas Braille y repinta el panel
-     * Braille.
-     */
-    private void clearBrailleCells() {
-        if (additionalBrailleCell != null) {
-            additionalBrailleCell.clearPoints();
-        }
-
-        currentBrailleCell.clearPoints();
-        braillePanel.repaint();
-    }
-
-    /**
-     * Actualiza el diseño del panel Braille si el modo de mayúsculas o el modo
-     * de número están activados.
-     */
-    private void updateBraillePanelIfNeeded() {
-        if (isUpperCaseMode || isNumberMode) {
-            updateBraillePanelLayout();
         }
 
         return cellText.toString();
@@ -680,11 +580,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         jBExportar.setIconTextGap(2);
         jBExportar.setPreferredSize(new java.awt.Dimension(40, 40));
         jBExportar.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jBExportar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jBExportarActionPerformed(evt);
-            }
-        });
 
         jBImprimir.setBackground(new java.awt.Color(102, 102, 102));
         jBImprimir.setForeground(new java.awt.Color(255, 255, 255));
@@ -840,11 +735,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         jComboBoxTamañoLetra.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30" }));
         jComboBoxTamañoLetra.setFocusable(false);
         jComboBoxTamañoLetra.setOpaque(true);
-        jComboBoxTamañoLetra.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxTamañoLetraActionPerformed(evt);
-            }
-        });
 
         jLTamFuente1.setBackground(new java.awt.Color(255, 255, 255));
         jLTamFuente1.setForeground(new java.awt.Color(255, 255, 255));
@@ -865,21 +755,11 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         jCheckBoxCursiva.setText("Cursiva");
         jCheckBoxCursiva.setContentAreaFilled(false);
         jCheckBoxCursiva.setPreferredSize(new java.awt.Dimension(75, 20));
-        jCheckBoxCursiva.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxCursivaActionPerformed(evt);
-            }
-        });
 
         jCheckBoxNegrita.setBackground(new java.awt.Color(255, 255, 255));
         jCheckBoxNegrita.setForeground(new java.awt.Color(255, 255, 255));
         jCheckBoxNegrita.setText("Negrita");
         jCheckBoxNegrita.setContentAreaFilled(false);
-        jCheckBoxNegrita.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxNegritaActionPerformed(evt);
-            }
-        });
 
         jLTitulo1.setForeground(new java.awt.Color(255, 255, 255));
         jLTitulo1.setText("                      Edición");
@@ -1352,11 +1232,10 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jBDisposeActionPerformed
 
     private void jLColorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLColorMouseClicked
-        Color color = JColorChooser.showDialog(this, "Seleccionar color de texto", textFormat.getSelectedColor());
+        Color color = JColorChooser.showDialog(this, "Seleccionar color de texto", selectedColor);
         if (color != null) {
-            textFormat.setSelectedColor(color);
+            this.selectedColor = color;
             this.jLColor.setBackground(color);
-            textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
         }
     }//GEN-LAST:event_jLColorMouseClicked
 
@@ -1366,7 +1245,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
 
     private void jBIntercambioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBIntercambioActionPerformed
         switchTranslationMode();
-        resetFormattingOptions();
     }//GEN-LAST:event_jBIntercambioActionPerformed
 
     private void jTALenEntradaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTALenEntradaFocusGained
@@ -1404,38 +1282,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
     private void jBTraducirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBTraducirActionPerformed
         translateText();
     }//GEN-LAST:event_jBTraducirActionPerformed
-
-
-    private void jBExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBExportarActionPerformed
-        JFExport exportFrame = new JFExport(jTLenSalida);
-        exportFrame.setLocationRelativeTo(null); 
-        exportFrame.setVisible(true);
-    }//GEN-LAST:event_jBExportarActionPerformed
-
-    private void jComboBoxTamañoLetraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxTamañoLetraActionPerformed
-        int fontSize = Integer.parseInt((String) jComboBoxTamañoLetra.getSelectedItem());
-        textFormat.setFontSize(fontSize);
-        textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
-    }//GEN-LAST:event_jComboBoxTamañoLetraActionPerformed
-
-    private void jCheckBoxCursivaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxCursivaActionPerformed
-        if (textFormat.isSpanishToBraille()) {
-            textFormat.setCursivaSalida(jCheckBoxCursiva.isSelected());
-        } else {
-            textFormat.setCursivaEntrada(jCheckBoxCursiva.isSelected());
-        }
-        textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
-       
-    }//GEN-LAST:event_jCheckBoxCursivaActionPerformed
-
-    private void jCheckBoxNegritaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxNegritaActionPerformed
-        if (textFormat.isSpanishToBraille()) {
-            textFormat.setNegritaSalida(jCheckBoxNegrita.isSelected());
-        } else {
-            textFormat.setNegritaEntrada(jCheckBoxNegrita.isSelected());
-        }
-        textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
-    }//GEN-LAST:event_jCheckBoxNegritaActionPerformed
 
     private void jBSpeakerInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBSpeakerInActionPerformed
         String talkback = this.jTALenEntrada.getText();
