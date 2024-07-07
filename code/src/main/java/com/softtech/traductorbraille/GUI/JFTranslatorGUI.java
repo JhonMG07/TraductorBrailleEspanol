@@ -134,6 +134,12 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
     }
     
+    /**
+    * Restablece las opciones de formato a sus valores predeterminados.
+    * 
+    * Este método restablece las opciones de tamaño de letra, negrita y cursiva
+    * en los componentes de interfaz correspondientes.
+    */
     private void resetFormattingOptions() {
         jComboBoxTamañoLetra.setSelectedIndex(0);
         jCheckBoxCursiva.setSelected(false);
