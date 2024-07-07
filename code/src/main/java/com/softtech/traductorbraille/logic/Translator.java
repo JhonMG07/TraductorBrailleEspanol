@@ -187,9 +187,19 @@ public class Translator {
     }
     
     /**
-     * Traducir de braille a español
-     * @param brailleText cadena de texto en braille
-     * @return cadena traducida en español
+     * Traduce una cadena de texto en Braille a español.
+     * <p>
+     * Este método convierte cada carácter Braille en su equivalente en español, manejando modos de números y mayúsculas.
+     * <p>
+     * Los pasos específicos incluyen:
+     * <ul>
+     *     <li>Detectar el modo de número utilizando la secuencia Braille "3456".</li>
+     *     <li>Convertir los caracteres Braille alfabéticos y numéricos de acuerdo a su contexto (modo de número, modo de mayúsculas).</li>
+     *     <li>Detectar el modo de mayúsculas utilizando la secuencia Braille "46".</li>
+     * </ul>
+     *
+     * @param brailleText Cadena de texto en Braille a traducir.
+     * @return Cadena traducida en español.
      */
     public String translateToSpanish(String brailleText) {
         StringBuilder translatedText = new StringBuilder();
@@ -227,6 +237,54 @@ public class Translator {
             }
 
             translatedChar = brailleMap.getOrDefault(auxiliary, "?");
+
+            translatedText.append(translatedChar);
+        }
+
+        return translatedText.toString();
+    }
+
+    /**
+     * Traduce una cadena de texto en Braille a números en español.
+     * <p>
+     * Este método convierte cada carácter Braille a su equivalente numérico en español, manejando el modo de número.
+     * <p>
+     * Los pasos específicos incluyen:
+     * <ul>
+     *     <li>Detectar el modo de número utilizando la secuencia Braille "3456".</li>
+     *     <li>Convertir los caracteres Braille a números y puntos/comas en su contexto de modo de número.</li>
+     *     <li>Ignorar cualquier carácter que no sea un número, punto o coma durante la traducción.</li>
+     * </ul>
+     *
+     * @param brailleText Cadena de texto en Braille a traducir.
+     * @return Cadena traducida a números en español.
+     */
+    public String translateToSpanishNumbersOnly(String brailleText) {
+        StringBuilder translatedText = new StringBuilder();
+        boolean isNumberMode = false;
+
+        String[] brailleTextArray = extractBrailleText(brailleText);
+
+        for (int i = 0; i < brailleTextArray.length; i++) {
+            String translatedChar;
+            String auxiliary = brailleTextArray[i];
+            if (brailleTextArray[i].equals("3456")) {
+                isNumberMode = true;
+                continue;
+            }
+            if (isNumberMode) {
+                auxiliary = "3456 " + brailleTextArray[i];
+                if (!isPeriodOrComma(brailleTextArray[i])) {
+                    isNumberMode = false;
+                }
+            }
+
+            translatedChar = brailleMap.getOrDefault(auxiliary, "?");
+
+            // Asegurarse de que solo se traduzcan números
+            if (!Character.isDigit(translatedChar.charAt(0)) && !isPeriodOrComma(brailleTextArray[i])) {
+                translatedChar = "?";  // Ignorar letras
+            }
 
             translatedText.append(translatedChar);
         }
