@@ -771,15 +771,15 @@ public class JFTranslator extends javax.swing.JFrame {
     * Exporta el texto traducido a un archivo.
     */
     private void jMExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMExportarActionPerformed
-        String texto;
-        if (getTranslationMode()) {
-            texto = jTBraille.getText();
-        } else {
-            texto = jTASpanish.getText();
-        }
-        
-        JFExport exportFrame = new JFExport(texto); // Crear una instancia de JFExport
-        exportFrame.setVisible(true); // Hacer visible la ventana de exportación
+//        String texto;
+//        if (getTranslationMode()) {
+//            texto = jTBraille.getText();
+//        } else {
+//            texto = jTASpanish.getText();
+//        }
+//        
+//        JFExport exportFrame = new JFExport(texto); // Crear una instancia de JFExport
+//        exportFrame.setVisible(true); // Hacer visible la ventana de exportación
     }//GEN-LAST:event_jMExportarActionPerformed
 
     /**
