@@ -778,8 +778,8 @@ public class JFTranslator extends javax.swing.JFrame {
             texto = jTASpanish.getText();
         }
         
-        JFExport exportFrame = new JFExport(texto); // Crear una instancia de JFExport
-        exportFrame.setVisible(true); // Hacer visible la ventana de exportación
+        //JFExport2 exportFrame = new JFExport2(texto); // Crear una instancia de JFExport
+        //exportFrame.setVisible(true); // Hacer visible la ventana de exportación
     }//GEN-LAST:event_jMExportarActionPerformed
 
     /**
