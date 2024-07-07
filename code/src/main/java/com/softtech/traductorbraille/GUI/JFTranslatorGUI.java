@@ -120,6 +120,9 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         this.jLEspañolEntrada.setText(spanishLabel);
         this.jPLenSalida.setBorder(BorderFactory.createTitledBorder(brailleLabel));
         this.jPLenEntrada.setBorder(BorderFactory.createTitledBorder(spanishLabel));
+        
+        textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
+        resetFormattingOptions();
     }
 
     /**
@@ -129,6 +132,12 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         setTranslationMode(getTranslationMode());
         clearTextFields();
         textFormat.applyConditionalFormatting(jTALenEntrada, jTLenSalida);
+    }
+    
+    private void resetFormattingOptions() {
+        jComboBoxTamañoLetra.setSelectedIndex(0);
+        jCheckBoxCursiva.setSelected(false);
+        jCheckBoxNegrita.setSelected(false);
     }
     
     /**
@@ -1142,6 +1151,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
 
     private void jBIntercambioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBIntercambioActionPerformed
         switchTranslationMode();
+        resetFormattingOptions();
     }//GEN-LAST:event_jBIntercambioActionPerformed
 
     private void jTALenEntradaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTALenEntradaFocusGained

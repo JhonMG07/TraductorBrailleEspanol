@@ -4,15 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JTextArea;
 
-/**
- *
- * Servicio de cambio de formato para el texto Traducido y a Traducir
- * 
- * @since 1.0
- * @version 2.0
- * @author SoftTech
- */
-
 public class TextFormatter {
     private boolean isSpanishToBraille;
     private boolean negritaEntrada;
@@ -73,14 +64,22 @@ public class TextFormatter {
     }
 
     public void applyConditionalFormatting(JTextArea jTALenEntrada, JTextArea jTLenSalida) {
+        // Reset formatting for both text areas
+        resetFormatting(jTALenEntrada);
+        resetFormatting(jTLenSalida);
+
         JTextArea targetEntrada = isSpanishToBraille ? jTALenEntrada : jTLenSalida;
         JTextArea targetSalida = isSpanishToBraille ? jTLenSalida : jTALenEntrada;
 
+        // Apply formatting to the correct text areas based on translation mode
+        //applyFormatting(targetEntrada, negritaEntrada, cursivaEntrada);
+        //applyFormatting(targetSalida, negritaSalida, cursivaSalida);
+        
         // Formatear jTALenEntrada o jTLenSalida según el modo de traducción
         applyFormatting(targetSalida, isSpanishToBraille ? negritaSalida : negritaEntrada, 
                         isSpanishToBraille ? cursivaSalida : cursivaEntrada);
 
-        // Aplicar cambios de color y tamaño a ambos JTextArea
+        // Apply color and size changes to both JTextArea
         applyColorAndSize(jTALenEntrada);
         applyColorAndSize(jTLenSalida);
     }
@@ -99,5 +98,10 @@ public class TextFormatter {
     private void applyColorAndSize(JTextArea textArea) {
         textArea.setForeground(selectedColor);
         textArea.setFont(new Font(textArea.getFont().getName(), textArea.getFont().getStyle(), fontSize));
+    }
+
+    private void resetFormatting(JTextArea textArea) {
+        textArea.setFont(new Font(textArea.getFont().getName(), Font.PLAIN, fontSize));
+        textArea.setForeground(Color.BLACK);
     }
 }
