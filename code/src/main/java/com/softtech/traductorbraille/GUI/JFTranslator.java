@@ -786,8 +786,13 @@ public class JFTranslator extends javax.swing.JFrame {
     * Imprime el texto traducido.
     */
     private void jMImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMImprimirActionPerformed
-        JFPreview prev = new JFPreview(translator.generateBrailleMirror(jTBraille.getText()));
-        prev.setVisible(true);
+        if (jTBraille.getText().isBlank()){
+            JOptionPane.showMessageDialog(null, "Error al imprimir: " + "No existe texto traducido para imprimir", "Error de Impresión", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        String texto = jTBraille.getText();
+        JFPreview exportFrame = new JFPreview(texto, 20); // Crear una instancia de JFExport
+        exportFrame.setVisible(true); 
     }//GEN-LAST:event_jMImprimirActionPerformed
 
     private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained
