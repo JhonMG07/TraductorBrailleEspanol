@@ -20,7 +20,7 @@ public class BrailleCell extends javax.swing.JPanel {
      */
     public BrailleCell() {
         setSize(54, 88);
-        setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
     /**
