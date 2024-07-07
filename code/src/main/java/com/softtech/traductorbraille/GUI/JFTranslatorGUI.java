@@ -1,6 +1,7 @@
 package com.softtech.traductorbraille.GUI;
 
 import com.softtech.traductorbraille.logic.Translator;
+import com.softtech.traductorbraille.logic.VoiceService;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -13,7 +14,7 @@ import javax.swing.JOptionPane;
 /**
  *
  * JFTranslatorGUI es la interfaz gráfica que permite al usuario realizar
- traducciones de español-braille y braille-español.
+ * traducciones de español-braille y braille-español.
  *
  * @since 1.0
  * @version 2.0
@@ -22,7 +23,10 @@ import javax.swing.JOptionPane;
 public class JFTranslatorGUI extends javax.swing.JFrame {
 
     private Translator translator = new Translator();
-    
+
+    private boolean flag = true;
+    private VoiceService voiceListener;
+
     private int x;
     private int y;
     private Color selectedColor = Color.BLACK;
@@ -65,6 +69,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         });
         currentBrailleCell = new BrailleCell();
         braillePanel.add(currentBrailleCell);
+        voiceListener = new VoiceService();
     }
 
     /**
@@ -102,20 +107,21 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
             title = "Brailingo - Traductor: Braille -> Español";
             brailleLabel = "Español";
             spanishLabel = "Braille";
-            requestFocusInWindow();
         } else {
             title = "Brailingo - Traductor: Español -> Braille";
             brailleLabel = "Braille";
             spanishLabel = "Español";
         }
+        this.jPSpanishEntrance.setVisible(!isSpanishToBraille);
+        this.jPSpanishOut.setVisible(isSpanishToBraille);
         this.jTALenEntrada.setEditable(!isSpanishToBraille);
         this.JPBrailleMenu.setVisible(isSpanishToBraille);
         this.jSeparator3.setVisible(isSpanishToBraille);
         this.jTATitulo.setText(title);
         this.jLBrailleEntrada.setText(brailleLabel);
         this.jLEspañolEntrada.setText(spanishLabel);
-        this.jPLenSalida.setBorder(BorderFactory.createTitledBorder(brailleLabel));
-        this.jPLenEntrada.setBorder(BorderFactory.createTitledBorder(spanishLabel));
+        this.jLLenEntrada.setText(spanishLabel);
+        this.jLLenSalida.setText(brailleLabel);
     }
 
     /**
@@ -125,7 +131,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         setTranslationMode(getTranslationMode());
         clearTextFields();
     }
-    
+
     /**
      * Maneja la entrada del teclado para la entrada de puntos Braille.
      *
@@ -138,14 +144,37 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
             currentBrailleCell.setPoint(index, !currentState);
             braillePanel.repaint();
         } else if (keyCode == KeyEvent.VK_ENTER) {
-            translateText(); 
+            translateText();
         } else if (keyCode == KeyEvent.VK_SPACE) {
             addSpace();
+        } else if (keyCode == KeyEvent.VK_BACK_SPACE) {
+            deleteLastCharacter();
         }
+    }
+    
+    /**
+     * Borra el último carácter escrito en los campos de texto de entrada y
+     * salida.
+     */
+    private void deleteLastCharacter() {
+        String entradaText = this.jTALenEntrada.getText();
+        String salidaText = this.jTLenSalida.getText();
+
+        if (entradaText.length() > 0) {
+            this.jTALenEntrada.setText(entradaText.substring(0, entradaText.length() - 2));
+        }
+
+        if (salidaText.length() > 0) {
+            this.jTLenSalida.setText(salidaText.substring(0, salidaText.length() - 1));
+        }
+
+        currentBrailleCell.clearPoints();
+        braillePanel.repaint();
     }
 
     /**
-     * Agrega un espacio en la traducción Braille y los campos de texto correspondientes.
+     * Agrega un espacio en la traducción Braille y los campos de texto
+     * correspondientes.
      */
     private void addSpace() {
         this.jTALenEntrada.append("  ");
@@ -169,119 +198,124 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         }
         return -1;
     }
-    
+
     /**
- * Traduce la celda Braille actual a texto, usando la clase Translator y coloca los resultados en el formulario.
- */
-private void translateCurrentBrailleCell() {
-    String cellText = getBrailleCellText(currentBrailleCell);
-    String targetCellText = additionalBrailleCell != null ? getBrailleCellText(additionalBrailleCell) : "";
+     * Traduce la celda Braille actual a texto, usando la clase Translator y
+     * coloca los resultados en el formulario.
+     */
+    private void translateCurrentBrailleCell() {
+        String cellText = getBrailleCellText(currentBrailleCell);
+        String targetCellText = additionalBrailleCell != null ? getBrailleCellText(additionalBrailleCell) : "";
 
-    String combinedBrailleText = combineBrailleTexts(targetCellText, cellText);
-    String translation = translateBrailleText(combinedBrailleText);
+        String combinedBrailleText = combineBrailleTexts(targetCellText, cellText);
+        String translation = translateBrailleText(combinedBrailleText);
 
-    if (translation.equals("?")) {
-        showTranslationError();
-        return;
+        if (translation.equals("?")) {
+            showTranslationError();
+            return;
+        }
+
+        updateFormFields(targetCellText, cellText, translation);
+        clearBrailleCells();
+        updateBraillePanelIfNeeded();
     }
 
-    updateFormFields(targetCellText, cellText, translation);
-    clearBrailleCells();
-    updateBraillePanelIfNeeded();
-}
+    /**
+     * Obtiene los puntos activados en la celda Braille.
+     *
+     * @param brailleCell La celda Braille de la cual obtener los puntos
+     * activados.
+     * @return Texto Braille basado en los puntos activados.
+     */
+    private String getBrailleCellText(BrailleCell brailleCell) {
+        StringBuilder cellText = new StringBuilder();
 
-/**
- * Obtiene los puntos activados en la celda Braille.
- *
- * @param brailleCell La celda Braille de la cual obtener los puntos activados.
- * @return Texto Braille basado en los puntos activados.
- */
-private String getBrailleCellText(BrailleCell brailleCell) {
-    StringBuilder cellText = new StringBuilder();
+        for (int i = 0; i < BRAILLE_INDEX_MAPPING.length; i++) {
+            if (brailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
+                cellText.append(i + 1);
+            }
+        }
 
-    for (int i = 0; i < BRAILLE_INDEX_MAPPING.length; i++) {
-        if (brailleCell.getPoint(BRAILLE_INDEX_MAPPING[i])) {
-            cellText.append(i + 1);
+        return cellText.toString();
+    }
+
+    /**
+     * Combina los textos Braille obtenidos de dos celdas.
+     *
+     * @param targetCellText Texto de la celda Braille adicional.
+     * @param cellText Texto de la celda Braille actual.
+     * @return Texto Braille combinado.
+     */
+    private String combineBrailleTexts(String targetCellText, String cellText) {
+        return (targetCellText.isEmpty() ? "" : targetCellText + " ") + cellText;
+    }
+
+    /**
+     * Traduce el texto Braille basado en el modo de traducción actual.
+     *
+     * @param combinedBrailleText Texto Braille combinado a traducir.
+     * @return Texto traducido.
+     */
+    private String translateBrailleText(String combinedBrailleText) {
+        if (isNumberMode) {
+            return translator.translateToSpanishNumbersOnly(combinedBrailleText);
+        } else {
+            return translator.translateToSpanish(combinedBrailleText);
         }
     }
 
-    return cellText.toString();
-}
-
-/**
- * Combina los textos Braille obtenidos de dos celdas.
- *
- * @param targetCellText Texto de la celda Braille adicional.
- * @param cellText Texto de la celda Braille actual.
- * @return Texto Braille combinado.
- */
-private String combineBrailleTexts(String targetCellText, String cellText) {
-    return (targetCellText.isEmpty() ? "" : targetCellText + " ") + cellText;
-}
-
-/**
- * Traduce el texto Braille basado en el modo de traducción actual.
- *
- * @param combinedBrailleText Texto Braille combinado a traducir.
- * @return Texto traducido.
- */
-private String translateBrailleText(String combinedBrailleText) {
-    if (isNumberMode) {
-        return translator.translateToSpanishNumbersOnly(combinedBrailleText);
-    } else {
-        return translator.translateToSpanish(combinedBrailleText);
-    }
-}
-
-/**
- * Muestra un mensaje de error si la combinación de puntos no existe en el diccionario de traducción.
- */
-private void showTranslationError() {
-    JOptionPane.showMessageDialog(this,
-            "La traducción para la combinación ingresada no existe en el diccionario.",
-            "Error de Traducción", JOptionPane.ERROR_MESSAGE);
-}
-
-/**
- * Actualiza los campos del formulario con la traducción y el texto Braille en Unicode.
- *
- * @param targetCellText Texto de la celda Braille adicional.
- * @param cellText Texto de la celda Braille actual.
- * @param translation Texto traducido.
- */
-private void updateFormFields(String targetCellText, String cellText, String translation) {
-    if (!targetCellText.isEmpty()) {
-        String targetBrailleUnicode = translator.brailleToUnicode(targetCellText);
-        this.jTALenEntrada.append(targetBrailleUnicode);
+    /**
+     * Muestra un mensaje de error si la combinación de puntos no existe en el
+     * diccionario de traducción.
+     */
+    private void showTranslationError() {
+        JOptionPane.showMessageDialog(this,
+                "La traducción para la combinación ingresada no existe en el diccionario.",
+                "Error de Traducción", JOptionPane.ERROR_MESSAGE);
     }
 
-    this.jTLenSalida.append(translation);
-    String brailleUnicode = translator.brailleToUnicode(cellText);
-    this.jTALenEntrada.append(brailleUnicode);
-    this.jTALenEntrada.append(" ");
-}
+    /**
+     * Actualiza los campos del formulario con la traducción y el texto Braille
+     * en Unicode.
+     *
+     * @param targetCellText Texto de la celda Braille adicional.
+     * @param cellText Texto de la celda Braille actual.
+     * @param translation Texto traducido.
+     */
+    private void updateFormFields(String targetCellText, String cellText, String translation) {
+        if (!targetCellText.isEmpty()) {
+            String targetBrailleUnicode = translator.brailleToUnicode(targetCellText);
+            this.jTALenEntrada.append(targetBrailleUnicode);
+        }
 
-/**
- * Limpia los puntos activados de las celdas Braille y repinta el panel Braille.
- */
-private void clearBrailleCells() {
-    if (additionalBrailleCell != null) {
-        additionalBrailleCell.clearPoints();
+        this.jTLenSalida.append(translation);
+        String brailleUnicode = translator.brailleToUnicode(cellText);
+        this.jTALenEntrada.append(brailleUnicode);
+        this.jTALenEntrada.append(" ");
     }
 
-    currentBrailleCell.clearPoints();
-    braillePanel.repaint();
-}
+    /**
+     * Limpia los puntos activados de las celdas Braille y repinta el panel
+     * Braille.
+     */
+    private void clearBrailleCells() {
+        if (additionalBrailleCell != null) {
+            additionalBrailleCell.clearPoints();
+        }
 
-/**
- * Actualiza el diseño del panel Braille si el modo de mayúsculas o el modo de número están activados.
- */
-private void updateBraillePanelIfNeeded() {
-    if (isUpperCaseMode || isNumberMode) {
-        updateBraillePanelLayout();
+        currentBrailleCell.clearPoints();
+        braillePanel.repaint();
     }
-}
 
+    /**
+     * Actualiza el diseño del panel Braille si el modo de mayúsculas o el modo
+     * de número están activados.
+     */
+    private void updateBraillePanelIfNeeded() {
+        if (isUpperCaseMode || isNumberMode) {
+            updateBraillePanelLayout();
+        }
+    }
 
     /**
      * Obtiene el texto de la celda objetivo (mayúsculas o números).
@@ -369,16 +403,17 @@ private void updateBraillePanelIfNeeded() {
         updateBraillePanelLayout();
         requestFocusInWindow();
     }
-    
+
     /**
-     * Verifica si la traducción puede realizarse según los modos actuales y el estado de la celda.
+     * Verifica si la traducción puede realizarse según los modos actuales y el
+     * estado de la celda.
      *
      * @return true si la traducción puede continuar, false en caso contrario
      */
     private boolean canTranslate() {
         return !(isUpperCaseMode || isNumberMode) || !isBrailleCellEmpty(currentBrailleCell);
     }
-    
+
     /**
      * Verifica si la celda Braille dada está vacía.
      *
@@ -427,6 +462,16 @@ private void updateBraillePanelIfNeeded() {
         }
     }
 
+    /**
+     * Utiliza el servicio de voz para reproducir el texto especificado en voz
+     * alta.
+     *
+     * @param talkback El texto que se desea reproducir en voz alta.
+     */
+    private void speaker(String talkback) {
+        voiceListener.speak(talkback);
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -435,7 +480,6 @@ private void updateBraillePanelIfNeeded() {
         jBClose = new javax.swing.JButton();
         jBDispose = new javax.swing.JButton();
         jBExportar = new javax.swing.JButton();
-        jBImportar = new javax.swing.JButton();
         jBImprimir = new javax.swing.JButton();
         jTATitulo = new javax.swing.JTextArea();
         jPMenu = new javax.swing.JPanel();
@@ -459,7 +503,6 @@ private void updateBraillePanelIfNeeded() {
         jLTitulo3 = new javax.swing.JLabel();
         jBTraducir = new javax.swing.JButton();
         jBBorrar = new javax.swing.JButton();
-        jCheckBoxCursiva1 = new javax.swing.JCheckBox();
         jSeparator3 = new javax.swing.JSeparator();
         JPBrailleMenu = new javax.swing.JPanel();
         jTextArea3 = new javax.swing.JTextArea();
@@ -470,9 +513,16 @@ private void updateBraillePanelIfNeeded() {
         braillePanel = new javax.swing.JPanel();
         jPTraduccion = new javax.swing.JPanel();
         jPLenEntrada = new javax.swing.JPanel();
+        jLLenEntrada = new javax.swing.JLabel();
+        jPSpanishEntrance = new javax.swing.JPanel();
+        jBMic = new javax.swing.JButton();
+        jBSpeakerIn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTALenEntrada = new javax.swing.JTextArea();
         jPLenSalida = new javax.swing.JPanel();
+        jLLenSalida = new javax.swing.JLabel();
+        jPSpanishOut = new javax.swing.JPanel();
+        jBSpeakerOut = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTLenSalida = new javax.swing.JTextArea();
 
@@ -531,17 +581,6 @@ private void updateBraillePanelIfNeeded() {
         jBExportar.setPreferredSize(new java.awt.Dimension(40, 40));
         jBExportar.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
 
-        jBImportar.setBackground(new java.awt.Color(102, 102, 102));
-        jBImportar.setForeground(new java.awt.Color(255, 255, 255));
-        jBImportar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/import24.png"))); // NOI18N
-        jBImportar.setText(" Importar");
-        jBImportar.setBorderPainted(false);
-        jBImportar.setFocusable(false);
-        jBImportar.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        jBImportar.setIconTextGap(2);
-        jBImportar.setPreferredSize(new java.awt.Dimension(40, 40));
-        jBImportar.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-
         jBImprimir.setBackground(new java.awt.Color(102, 102, 102));
         jBImprimir.setForeground(new java.awt.Color(255, 255, 255));
         jBImprimir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/print24.png"))); // NOI18N
@@ -579,10 +618,8 @@ private void updateBraillePanelIfNeeded() {
                 .addContainerGap()
                 .addComponent(jBExportar, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jBImportar, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jBImprimir, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 296, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 417, Short.MAX_VALUE)
                 .addComponent(jTATitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(224, 224, 224)
                 .addComponent(jBDispose, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -599,7 +636,6 @@ private void updateBraillePanelIfNeeded() {
                         .addComponent(jTATitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                     .addComponent(jBClose, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jBDispose, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jBImportar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jBImprimir, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jBExportar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -607,7 +643,6 @@ private void updateBraillePanelIfNeeded() {
 
         jBExportar.getAccessibleContext().setAccessibleName("");
         jBExportar.getAccessibleContext().setAccessibleDescription("");
-        jBImportar.getAccessibleContext().setAccessibleName("110");
         jBImprimir.getAccessibleContext().setAccessibleName("");
 
         getContentPane().add(jPArchivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1350, 40));
@@ -800,12 +835,6 @@ private void updateBraillePanelIfNeeded() {
             }
         });
 
-        jCheckBoxCursiva1.setBackground(new java.awt.Color(255, 255, 255));
-        jCheckBoxCursiva1.setForeground(new java.awt.Color(255, 255, 255));
-        jCheckBoxCursiva1.setText("TalkBack");
-        jCheckBoxCursiva1.setContentAreaFilled(false);
-        jCheckBoxCursiva1.setPreferredSize(new java.awt.Dimension(75, 24));
-
         javax.swing.GroupLayout JPHerramientasLayout = new javax.swing.GroupLayout(JPHerramientas);
         JPHerramientas.setLayout(JPHerramientasLayout);
         JPHerramientasLayout.setHorizontalGroup(
@@ -816,8 +845,7 @@ private void updateBraillePanelIfNeeded() {
                     .addGroup(JPHerramientasLayout.createSequentialGroup()
                         .addGroup(JPHerramientasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jBBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jCheckBoxCursiva1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                            .addComponent(jLTitulo3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jLTitulo3, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -828,9 +856,7 @@ private void updateBraillePanelIfNeeded() {
                 .addComponent(jBTraducir, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jBBorrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCheckBoxCursiva1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jLTitulo3, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -854,7 +880,7 @@ private void updateBraillePanelIfNeeded() {
 
         jCBMayusculas.setBackground(new java.awt.Color(153, 153, 153));
         jCBMayusculas.setForeground(new java.awt.Color(255, 255, 255));
-        jCBMayusculas.setText("Mayúsculas(Ctrl-)");
+        jCBMayusculas.setText("Mayúsculas");
         jCBMayusculas.setOpaque(true);
         jCBMayusculas.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -864,7 +890,7 @@ private void updateBraillePanelIfNeeded() {
 
         jCBNumeros.setBackground(new java.awt.Color(153, 153, 153));
         jCBNumeros.setForeground(new java.awt.Color(255, 255, 255));
-        jCBNumeros.setText("Números (Ctrl+)");
+        jCBNumeros.setText("Números ");
         jCBNumeros.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jCBNumerosItemStateChanged(evt);
@@ -992,10 +1018,58 @@ private void updateBraillePanelIfNeeded() {
 
         getContentPane().add(jPMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 1350, 120));
 
-        jPLenEntrada.setBorder(javax.swing.BorderFactory.createTitledBorder("Español"));
         jPLenEntrada.setPreferredSize(new java.awt.Dimension(663, 115));
 
+        jLLenEntrada.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLLenEntrada.setText("Español");
+        jLLenEntrada.setPreferredSize(new java.awt.Dimension(545, 60));
+
+        jPSpanishEntrance.setOpaque(false);
+        jPSpanishEntrance.setPreferredSize(new java.awt.Dimension(90, 50));
+
+        jBMic.setBackground(new java.awt.Color(204, 204, 204));
+        jBMic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/mic32.png"))); // NOI18N
+        jBMic.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
+        jBMic.setPreferredSize(new java.awt.Dimension(32, 32));
+        jBMic.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBMicActionPerformed(evt);
+            }
+        });
+
+        jBSpeakerIn.setBackground(new java.awt.Color(204, 204, 204));
+        jBSpeakerIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/speaker32.png"))); // NOI18N
+        jBSpeakerIn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
+        jBSpeakerIn.setPreferredSize(new java.awt.Dimension(32, 32));
+        jBSpeakerIn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBSpeakerInActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPSpanishEntranceLayout = new javax.swing.GroupLayout(jPSpanishEntrance);
+        jPSpanishEntrance.setLayout(jPSpanishEntranceLayout);
+        jPSpanishEntranceLayout.setHorizontalGroup(
+            jPSpanishEntranceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPSpanishEntranceLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(jBSpeakerIn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jBMic, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(15, Short.MAX_VALUE))
+        );
+        jPSpanishEntranceLayout.setVerticalGroup(
+            jPSpanishEntranceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPSpanishEntranceLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(jPSpanishEntranceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jBMic, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jBSpeakerIn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(650, 540));
 
         jTALenEntrada.setColumns(20);
         jTALenEntrada.setRows(5);
@@ -1007,6 +1081,11 @@ private void updateBraillePanelIfNeeded() {
                 jTALenEntradaFocusGained(evt);
             }
         });
+        jTALenEntrada.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTALenEntradaKeyReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTALenEntrada);
 
         javax.swing.GroupLayout jPLenEntradaLayout = new javax.swing.GroupLayout(jPLenEntrada);
@@ -1015,20 +1094,64 @@ private void updateBraillePanelIfNeeded() {
             jPLenEntradaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPLenEntradaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
+                .addGroup(jPLenEntradaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPLenEntradaLayout.createSequentialGroup()
+                        .addComponent(jLLenEntrada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPSpanishEntrance, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         jPLenEntradaLayout.setVerticalGroup(
             jPLenEntradaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPLenEntradaLayout.createSequentialGroup()
-                .addComponent(jScrollPane1)
+            .addGroup(jPLenEntradaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPLenEntradaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPSpanishEntrance, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+                    .addComponent(jLLenEntrada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        jPLenSalida.setBorder(javax.swing.BorderFactory.createTitledBorder("Braille"));
         jPLenSalida.setPreferredSize(new java.awt.Dimension(663, 115));
 
+        jLLenSalida.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLLenSalida.setText("Braille");
+        jLLenSalida.setPreferredSize(new java.awt.Dimension(545, 60));
+
+        jPSpanishOut.setOpaque(false);
+        jPSpanishOut.setPreferredSize(new java.awt.Dimension(90, 50));
+
+        jBSpeakerOut.setBackground(new java.awt.Color(204, 204, 204));
+        jBSpeakerOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/speaker32.png"))); // NOI18N
+        jBSpeakerOut.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
+        jBSpeakerOut.setPreferredSize(new java.awt.Dimension(32, 32));
+        jBSpeakerOut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBSpeakerOutActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPSpanishOutLayout = new javax.swing.GroupLayout(jPSpanishOut);
+        jPSpanishOut.setLayout(jPSpanishOutLayout);
+        jPSpanishOutLayout.setHorizontalGroup(
+            jPSpanishOutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPSpanishOutLayout.createSequentialGroup()
+                .addContainerGap(53, Short.MAX_VALUE)
+                .addComponent(jBSpeakerOut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15))
+        );
+        jPSpanishOutLayout.setVerticalGroup(
+            jPSpanishOutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPSpanishOutLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jBSpeakerOut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(640, 540));
 
         jTLenSalida.setEditable(false);
         jTLenSalida.setBackground(new java.awt.Color(255, 255, 255));
@@ -1041,16 +1164,26 @@ private void updateBraillePanelIfNeeded() {
         javax.swing.GroupLayout jPLenSalidaLayout = new javax.swing.GroupLayout(jPLenSalida);
         jPLenSalida.setLayout(jPLenSalidaLayout);
         jPLenSalidaLayout.setHorizontalGroup(
-            jPLenSalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPLenSalidaLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
-                .addContainerGap())
+            jPLenSalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(jPLenSalidaLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(jPLenSalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPLenSalidaLayout.createSequentialGroup()
+                        .addComponent(jLLenSalida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPSpanishOut, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPLenSalidaLayout.setVerticalGroup(
             jPLenSalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPLenSalidaLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
+                .addContainerGap()
+                .addGroup(jPLenSalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLLenSalida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPSpanishOut, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -1059,20 +1192,19 @@ private void updateBraillePanelIfNeeded() {
         jPTraduccionLayout.setHorizontalGroup(
             jPTraduccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPTraduccionLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addComponent(jPLenEntrada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPLenSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(16, 16, 16))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPLenSalida, javax.swing.GroupLayout.PREFERRED_SIZE, 657, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(18, Short.MAX_VALUE))
         );
         jPTraduccionLayout.setVerticalGroup(
             jPTraduccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPTraduccionLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPTraduccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPLenSalida, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE)
-                    .addComponent(jPLenEntrada, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addGap(5, 5, 5)
+                .addGroup(jPTraduccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPLenEntrada, javax.swing.GroupLayout.PREFERRED_SIZE, 620, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPLenSalida, javax.swing.GroupLayout.PREFERRED_SIZE, 620, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         getContentPane().add(jPTraduccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 1350, 640));
@@ -1151,6 +1283,38 @@ private void updateBraillePanelIfNeeded() {
         translateText();
     }//GEN-LAST:event_jBTraducirActionPerformed
 
+    private void jBSpeakerInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBSpeakerInActionPerformed
+        String talkback = this.jTALenEntrada.getText();
+        speaker(talkback);
+    }//GEN-LAST:event_jBSpeakerInActionPerformed
+
+    private void jBSpeakerOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBSpeakerOutActionPerformed
+        String talkback = this.jTLenSalida.getText();
+        speaker(talkback);
+    }//GEN-LAST:event_jBSpeakerOutActionPerformed
+
+    private void jBMicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBMicActionPerformed
+        if (flag) {
+            this.jBMic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/mic32.png")));
+            //Inicia el reconocimiento de voz
+            Thread voiceThread = new Thread(() -> voiceListener.startListening(this.jTALenEntrada));
+            voiceThread.start();
+            flag = false;
+        } else {
+            this.jBMic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nomic32.png")));
+            //Detiene el reconocimiento de voz
+            if (voiceListener != null) {
+                voiceListener.stopListening();
+            }
+            flag = true;
+        }
+
+    }//GEN-LAST:event_jBMicActionPerformed
+
+    private void jTALenEntradaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTALenEntradaKeyReleased
+        translateText();
+    }//GEN-LAST:event_jTALenEntradaKeyReleased
+  
     private void jBImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBImprimirActionPerformed
         // TODO add your handling code here:
         if (jTLenSalida.getText().isBlank()){
@@ -1169,19 +1333,22 @@ private void updateBraillePanelIfNeeded() {
     private javax.swing.JButton jBClose;
     private javax.swing.JButton jBDispose;
     private javax.swing.JButton jBExportar;
-    private javax.swing.JButton jBImportar;
     private javax.swing.JButton jBImprimir;
     private javax.swing.JButton jBIntercambio;
+    private javax.swing.JButton jBMic;
+    private javax.swing.JButton jBSpeakerIn;
+    private javax.swing.JButton jBSpeakerOut;
     private javax.swing.JButton jBTraducir;
     private javax.swing.JCheckBox jCBMayusculas;
     private javax.swing.JCheckBox jCBNumeros;
     private javax.swing.JCheckBox jCheckBoxCursiva;
-    private javax.swing.JCheckBox jCheckBoxCursiva1;
     private javax.swing.JCheckBox jCheckBoxNegrita;
     private javax.swing.JComboBox<String> jComboBoxTamañoLetra;
     private javax.swing.JLabel jLBrailleEntrada;
     private javax.swing.JLabel jLColor;
     private javax.swing.JLabel jLEspañolEntrada;
+    private javax.swing.JLabel jLLenEntrada;
+    private javax.swing.JLabel jLLenSalida;
     private javax.swing.JLabel jLTamFuente;
     private javax.swing.JLabel jLTamFuente1;
     private javax.swing.JLabel jLTitulo1;
@@ -1194,6 +1361,8 @@ private void updateBraillePanelIfNeeded() {
     private javax.swing.JPanel jPLenEntrada;
     private javax.swing.JPanel jPLenSalida;
     private javax.swing.JPanel jPMenu;
+    private javax.swing.JPanel jPSpanishEntrance;
+    private javax.swing.JPanel jPSpanishOut;
     private javax.swing.JPanel jPTraduccion;
     private javax.swing.JPanel jPTraductor;
     private javax.swing.JScrollPane jScrollPane1;
