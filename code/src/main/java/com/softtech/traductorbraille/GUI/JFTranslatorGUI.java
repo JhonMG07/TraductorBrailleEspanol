@@ -1,8 +1,13 @@
 package com.softtech.traductorbraille.GUI;
 
-import com.softtech.traductorbraille.logic.TextFormatter;
+
+import com.softtech.traductorbraille.logic.Spanish;
+import com.softtech.traductorbraille.logic.Braille;
 import com.softtech.traductorbraille.logic.Translator;
+import com.softtech.traductorbraille.logic.TranslatorManager;
+import com.softtech.traductorbraille.logic.TextFormatter;
 import com.softtech.traductorbraille.logic.VoiceService;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -23,7 +28,8 @@ import javax.swing.JOptionPane;
  */
 public class JFTranslatorGUI extends javax.swing.JFrame {
 
-    private Translator translator = new Translator();
+    private TranslatorManager translator = new TranslatorManager();
+    
     private TextFormatter textFormat = new TextFormatter();
 
     private boolean flag = true;
@@ -38,12 +44,14 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
 
     private boolean isUpperCaseMode = false;
     private boolean isNumberMode = false;
+    private String totalBrailleTranslation = new String();
 
     private static final int[] BRAILLE_INDEX_MAPPING = {0, 2, 4, 1, 3, 5};
     private static final int[] KEY_EVENT_MAPPING = {
         KeyEvent.VK_NUMPAD1, KeyEvent.VK_NUMPAD2, KeyEvent.VK_NUMPAD3,
         KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD6
     };
+    private boolean firstTime = true;
 
     /**
      * Creates new form JFTranslatorGUI
@@ -164,7 +172,8 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
             currentBrailleCell.setPoint(index, !currentState);
             braillePanel.repaint();
         } else if (keyCode == KeyEvent.VK_ENTER) {
-            translateText();
+            translateText(); 
+            totalBrailleTranslation+=" ";
         } else if (keyCode == KeyEvent.VK_SPACE) {
             addSpace();
         } else if (keyCode == KeyEvent.VK_BACK_SPACE) {
@@ -191,12 +200,24 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         currentBrailleCell.clearPoints();
         braillePanel.repaint();
     }
+    
+    public void checkLastCharacterAndUnselect(String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+
+        char lastChar = text.charAt(text.length() - 1);
+        if (!Character.isDigit(lastChar) && lastChar != '.' && lastChar != ',') {
+            jCBNumeros.setSelected(false);
+        }
+    }
 
     /**
      * Agrega un espacio en la traducción Braille y los campos de texto
      * correspondientes.
      */
     private void addSpace() {
+        totalBrailleTranslation += "  ";
         this.jTALenEntrada.append("  ");
         this.jTLenSalida.append("⠀");
         currentBrailleCell.clearPoints();
@@ -227,18 +248,21 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         String cellText = getBrailleCellText(currentBrailleCell);
         String targetCellText = additionalBrailleCell != null ? getBrailleCellText(additionalBrailleCell) : "";
 
-        String combinedBrailleText = combineBrailleTexts(targetCellText, cellText);
-        String translation = translateBrailleText(combinedBrailleText);
+    String combinedBrailleText = combineBrailleTexts(targetCellText, cellText);
+    totalBrailleTranslation+= combinedBrailleText;
+    String translation = translator.translate(totalBrailleTranslation);
 
-        if (translation.equals("?")) {
-            showTranslationError();
-            return;
-        }
-
-        updateFormFields(targetCellText, cellText, translation);
-        clearBrailleCells();
-        updateBraillePanelIfNeeded();
+    //TODO: CORREGIR ESTO LOS ERRORES SE CONTROLAN EN LÓGICA
+    if (translation.equals("?")) {
+        showTranslationError();
+        return;
     }
+
+    updateFormFields(targetCellText, cellText, translation);
+    clearBrailleCells();
+    updateBraillePanelIfNeeded();
+    checkLastCharacterAndUnselect(translation);
+}
 
     /**
      * Obtiene los puntos activados en la celda Braille.
@@ -258,6 +282,23 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
 
         return cellText.toString();
     }
+
+/**
+ * Actualiza los campos del formulario con la traducción y el texto Braille en Unicode.
+ *
+ * @param targetCellText Texto de la celda Braille adicional.
+ * @param cellText Texto de la celda Braille actual.
+ * @param translation Texto traducido.
+ */
+private void updateFormFields(String targetCellText, String cellText, String translation) {
+    this.clearTextFields();
+    Braille brailleTranslator = new Braille();
+
+    this.jTLenSalida.append(translation);
+    String brailleUnicode = brailleTranslator.brailleToQuadratin(totalBrailleTranslation);
+    this.jTALenEntrada.append(brailleUnicode);
+    this.jTALenEntrada.append(" ");
+}
 
     /**
      * Combina los textos Braille obtenidos de dos celdas.
@@ -292,26 +333,6 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this,
                 "La traducción para la combinación ingresada no existe en el diccionario.",
                 "Error de Traducción", JOptionPane.ERROR_MESSAGE);
-    }
-
-    /**
-     * Actualiza los campos del formulario con la traducción y el texto Braille
-     * en Unicode.
-     *
-     * @param targetCellText Texto de la celda Braille adicional.
-     * @param cellText Texto de la celda Braille actual.
-     * @param translation Texto traducido.
-     */
-    private void updateFormFields(String targetCellText, String cellText, String translation) {
-        if (!targetCellText.isEmpty()) {
-            String targetBrailleUnicode = translator.brailleToUnicode(targetCellText);
-            this.jTALenEntrada.append(targetBrailleUnicode);
-        }
-
-        this.jTLenSalida.append(translation);
-        String brailleUnicode = translator.brailleToUnicode(cellText);
-        this.jTALenEntrada.append(brailleUnicode);
-        this.jTALenEntrada.append(" ");
     }
 
     /**
@@ -383,8 +404,9 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
         if (additionalBrailleCell != null) {
             if (isUpperCaseMode) {
                 setAdditionalCellPoints(true, true, false, false);
-            } else if (isNumberMode) {
+            } else if (isNumberMode && firstTime) {
                 setAdditionalCellPoints(true, true, true, true);
+                firstTime = false;
             }
         }
     }
@@ -410,6 +432,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
     private void upperCaseSelect() {
         isUpperCaseMode = !isUpperCaseMode;
         isNumberMode = false;
+        firstTime = true;
         updateBraillePanelLayout();
         requestFocusInWindow();
     }
@@ -418,7 +441,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
      * Activa/desactiva el modo números.
      */
     private void numberCaseSelect() {
-        isNumberMode = !isNumberMode;
+        isNumberMode = !isNumberMode;        
         isUpperCaseMode = false;
         updateBraillePanelLayout();
         requestFocusInWindow();
@@ -454,10 +477,12 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
      */
     private void translateText() {
         if (getTranslationMode()) {
-            String spanishText = this.jTALenEntrada.getText();
-            this.jTLenSalida.setText(translator.translateToBraille(spanishText));
+            translator.setLanguage(new Braille());
+            String spanishText = this.jTALenEntrada.getText();            
+            this.jTLenSalida.setText(translator.translate(spanishText));
         } else {
-            if (canTranslate()) {
+            if (canTranslate()) {                
+                translator.setLanguage(new Spanish());
                 translateCurrentBrailleCell();
                 currentBrailleCell.clearPoints();
                 if (additionalBrailleCell != null) {
@@ -1282,6 +1307,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
 
     private void jBBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBBorrarActionPerformed
         clearTextFields();
+        totalBrailleTranslation ="";
     }//GEN-LAST:event_jBBorrarActionPerformed
 
     private void jBIntercambioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBIntercambioActionPerformed
@@ -1313,6 +1339,7 @@ public class JFTranslatorGUI extends javax.swing.JFrame {
             this.jCBMayusculas.setSelected(false);
         } else {
             isNumberMode = false;
+            firstTime = true;
             updateBraillePanelLayout();
         }
     }//GEN-LAST:event_jCBNumerosItemStateChanged
