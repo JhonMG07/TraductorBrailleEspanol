@@ -1376,7 +1376,8 @@ private void updateFormFields(String targetCellText, String cellText, String tra
             JOptionPane.showMessageDialog(null, "Error al imprimir: " + "No existe texto traducido para imprimir", "Error de Impresión", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        JFPreview exportFrame = new JFPreview(jTLenSalida.getText(), Integer.parseInt(jComboBoxTamañoLetra.getSelectedItem().toString())); // Crear una instancia de JFExport
+        boolean isBraille = "Braille".equals(jLBrailleEntrada.getText());
+        JFPreview exportFrame = new JFPreview(jTLenSalida.getText(), Integer.parseInt(jComboBoxTamañoLetra.getSelectedItem().toString()), isBraille);
         exportFrame.setVisible(true); 
     }//GEN-LAST:event_jBImprimirActionPerformed
 

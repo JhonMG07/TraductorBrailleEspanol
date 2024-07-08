@@ -76,7 +76,7 @@ public class NormalPrinter implements Printer {
      */
     @Override
     public List<String> calculateLines(Graphics2D g2d, String content, PageFormat pageFormat, int fontSize) {
-        g2d.setFont(new Font("Serif", Font.PLAIN, fontSize));
+        g2d.setFont(new Font("Dialog", Font.PLAIN, fontSize));
         List<String> lines = new ArrayList<>();
         for (String paragraph : content.split("\n")) {
             String[] words = paragraph.split("\\s+");
@@ -238,7 +238,7 @@ public class NormalPrinter implements Printer {
      */
     @Override
     public void drawText(Graphics2D g2d, List<String> lines, PageFormat pageFormat, int fontSize) {
-        g2d.setFont(new Font("Serif", Font.PLAIN, fontSize));
+        g2d.setFont(new Font("Dialog", Font.PLAIN, fontSize));
         int lineHeight = g2d.getFontMetrics().getHeight();
         int y = lineHeight;
         int margin = 50;
