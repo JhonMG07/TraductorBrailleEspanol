@@ -312,20 +312,6 @@ private void updateFormFields(String targetCellText, String cellText, String tra
     }
 
     /**
-     * Traduce el texto Braille basado en el modo de traducción actual.
-     *
-     * @param combinedBrailleText Texto Braille combinado a traducir.
-     * @return Texto traducido.
-     */
-    private String translateBrailleText(String combinedBrailleText) {
-        if (isNumberMode) {
-            return translator.translateToSpanishNumbersOnly(combinedBrailleText);
-        } else {
-            return translator.translateToSpanish(combinedBrailleText);
-        }
-    }
-
-    /**
      * Muestra un mensaje de error si la combinación de puntos no existe en el
      * diccionario de traducción.
      */
