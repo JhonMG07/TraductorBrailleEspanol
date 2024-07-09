@@ -1,12 +1,9 @@
 package com.softtech.traductorbraille.GUI;
 
 import com.softtech.traductorbraille.logic.ExportService;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 
 /**
  *
@@ -54,7 +51,7 @@ public class JFExport extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         JButtonSelectFolder = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(102, 102, 102));
 
