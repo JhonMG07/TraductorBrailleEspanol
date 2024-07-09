@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-mvn ci/cd goals</actionName>
+            <displayName>mvn ci/cd goals</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>test</goal>
+                <goal>package</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-mvn javadoc</actionName>
+            <displayName>mvn javadoc</displayName>
+            <goals>
+                <goal>clean javadoc:javadoc</goal>
+                <goal>package javadoc:javadoc</goal>
+            </goals>
+        </action>
+    </actions>
