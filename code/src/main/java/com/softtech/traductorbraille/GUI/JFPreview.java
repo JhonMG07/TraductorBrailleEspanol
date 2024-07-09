@@ -4,6 +4,7 @@ import com.softtech.traductorbraille.logic.Dictionary;
 import com.softtech.traductorbraille.logic.Printer.MirrorPrinter;
 import com.softtech.traductorbraille.logic.Printer.NormalPrinter;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.print.PrinterException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,15 +27,17 @@ public class JFPreview extends javax.swing.JFrame {
     private final NormalPrinter normal;
     private final MirrorPrinter mirror;
     private final Dictionary mirrorBraille;
+    private Color fontColor;
 
     /**
      * Crea una nueva instancia de JFPreview.
      *
      * @param texto El texto a previsualizar e imprimir.
      * @param size
+     * @param selectedColor
      * @param isBraille
      */
-    public JFPreview(String texto, int size, boolean isBraille) {
+    public JFPreview(String texto, int size, Color selectedColor, boolean isBraille) {
         initComponents();
         this.text = texto;
         this.fontSize = size;
@@ -45,6 +48,7 @@ public class JFPreview extends javax.swing.JFrame {
             cmbImprimir.setEnabled(isBraille);
         } 
         mirrorBraille = new Dictionary();
+        fontColor = selectedColor;
         mirrorText = mirrorBraille.generateBrailleMirror(texto);
         previewText();
         setLocationRelativeTo(null);
@@ -53,9 +57,9 @@ public class JFPreview extends javax.swing.JFrame {
     private void previewText() {
         JPanel contentPanel;
         if (cmbImprimir.getSelectedIndex() == 0) {
-            contentPanel = mirror.createContentPanel(mirrorText, fontSize);
+            contentPanel = mirror.createContentPanel(mirrorText, fontSize, fontColor);
         } else {
-            contentPanel = normal.createContentPanel(text, fontSize);
+            contentPanel = normal.createContentPanel(text, fontSize, fontColor);
         }
         addToMainContainer(contentPanel);
     }
@@ -202,9 +206,9 @@ public class JFPreview extends javax.swing.JFrame {
     private void jBImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBImprimirActionPerformed
         try {
             if (cmbImprimir.getSelectedIndex() == 0) {
-                mirror.print(mirrorText, fontSize);
+                mirror.print(mirrorText, fontSize, fontColor);
             } else {
-                normal.print(text, fontSize);
+                normal.print(text, fontSize, fontColor);
             }
         } catch (PrinterException ex) {
             JOptionPane.showMessageDialog(null, "Error al imprimir: " + ex.getMessage(), "Error de Impresión", JOptionPane.ERROR_MESSAGE);

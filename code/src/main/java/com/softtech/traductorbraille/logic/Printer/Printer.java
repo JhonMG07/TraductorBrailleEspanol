@@ -25,18 +25,18 @@ public interface Printer {
     final int PDF_WIDTH = 816;
     final int PDF_HEIGTH = 1056;
     
-    void print(String text, int fontSize) throws Exception;
-    void drawText(Graphics2D g2d, List<String> lines, PageFormat pageFormat,  int fontSize);
+    void print(String text, int fontSize, Color fontColor) throws Exception;
+    void drawText(Graphics2D g2d, List<String> lines, PageFormat pageFormat,  int fontSize, Color fontColor);
     List<String> calculateLines(Graphics2D g2d, String content, PageFormat pageFormat, int fontSize);
 
-    default JPanel createContentPanel(String content, int fontSize) {
+    default JPanel createContentPanel(String content, int fontSize, Color fontColor) {
         JPanel contentPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics graphics) {
                 super.paintComponent(graphics);
                 Graphics2D g2d = (Graphics2D) graphics;
                 List<String> lines = calculateLines(g2d, content, new PageFormat(), fontSize); 
-                drawText(g2d, lines, new PageFormat(), fontSize); 
+                drawText(g2d, lines, new PageFormat(), fontSize, fontColor); 
             }
             @Override
             public Dimension getPreferredSize() {

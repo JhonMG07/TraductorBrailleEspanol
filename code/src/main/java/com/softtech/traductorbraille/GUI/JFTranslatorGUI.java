@@ -1377,7 +1377,7 @@ private void updateFormFields(String targetCellText, String cellText, String tra
             return;
         }
         boolean isBraille = "Braille".equals(jLBrailleEntrada.getText());
-        JFPreview exportFrame = new JFPreview(jTLenSalida.getText(), Integer.parseInt(jComboBoxTamañoLetra.getSelectedItem().toString()), isBraille);
+        JFPreview exportFrame = new JFPreview(jTLenSalida.getText(), textFormat.getFontSize(), textFormat.getSelectedColor(), isBraille);
         exportFrame.setVisible(true); 
     }//GEN-LAST:event_jBImprimirActionPerformed
 

@@ -4,6 +4,7 @@
  */
 package com.softtech.traductorbraille.logic.Printer;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -30,12 +31,13 @@ public class MirrorPrinter implements Printer {
      *
      * @param text El texto a imprimir.
      * @param fontSize El tamaño de la fuente para imprimir el texto.
+     * @param fontColor color del texto
      * @throws PrinterException Si ocurre un error durante la impresión.
      */
     @Override
-    public void print(String text, int fontSize) throws PrinterException {
+    public void print(String text, int fontSize, Color fontColor) throws PrinterException {
         PrinterJob job = PrinterJob.getPrinterJob();
-        job.setPrintable(createPrintable(text, fontSize));
+        job.setPrintable(createPrintable(text, fontSize, fontColor));
         if (job.printDialog()) {
             job.print();
         }
@@ -48,7 +50,7 @@ public class MirrorPrinter implements Printer {
      * @param fontSize El tamaño de la fuente para el contenido.
      * @return Un objeto Printable configurado para imprimir el contenido.
      */
-    private Printable createPrintable(String content, int fontSize) {
+    private Printable createPrintable(String content, int fontSize, Color fontColor) {
         return (Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
             Graphics2D g2d = (Graphics2D) graphics;
             g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
@@ -56,7 +58,7 @@ public class MirrorPrinter implements Printer {
             List<List<String>> pages = calculatePages(lines, g2d, pageFormat);
 
             if (pageIndex < pages.size()) {
-                drawText(g2d, pages.get(pageIndex), pageFormat, fontSize);
+                drawText(g2d, pages.get(pageIndex), pageFormat, fontSize, fontColor);
                 return Printable.PAGE_EXISTS;
             } else {
                 return Printable.NO_SUCH_PAGE;
@@ -234,10 +236,12 @@ public class MirrorPrinter implements Printer {
      * @param lines Las líneas de texto a dibujar.
      * @param pageFormat El formato de la página.
      * @param fontSize El tamaño de la fuente.
+     * @param fontColor color del texto
      */
     @Override
-    public void drawText(Graphics2D g2d, List<String> lines, PageFormat pageFormat, int fontSize) {
+    public void drawText(Graphics2D g2d, List<String> lines, PageFormat pageFormat, int fontSize, Color fontColor) {
         g2d.setFont(new Font("Dialog", Font.PLAIN, fontSize));
+        g2d.setColor(fontColor);
         int lineHeight = g2d.getFontMetrics().getHeight();
         int y = calculateStartingY(lines, lineHeight);
         int margin = 50;
