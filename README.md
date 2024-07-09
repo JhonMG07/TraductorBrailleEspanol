@@ -26,18 +26,14 @@ El propósito de este manual es guiar a los usuarios a través del proceso de in
 - Java Development Kit (JDK) 17 o superior
 - Apache Maven 3.8+ para gestión de dependencias
 
-## Proceso de Instalación (Uso del Ejecutable)
+## Instalación de Dependencias Adicionales
+Para que el proyecto funcione correctamente, es necesario instalar algunas dependencias de Python. Ejecuta las siguientes sentencias en la terminal o línea de comandos:
 
-1. **Descarga del Ejecutable:**
-   - Navega a la carpeta `executables` en el repositorio del proyecto.
-   - Descarga la versión más reciente del archivo JAR de preferencia.
-
-2. **Ejecución como Administrador:**
-   - Haz click derecho sobre el archivo JAR descargado.
-   - Selecciona "Ejecutar como administrador" para evitar problemas de permisos.
-
-3. **Uso del Software:**
-   - Una vez ejecutado, sigue las instrucciones del `manual de usuario` para conocer como hacer la traducción bidireccional, exportación de archivos, y utilizar otras funcionalidades.
+```
+pip install SpeechRecognition
+pip install pyaudio
+pip install pyttsx3
+```
 
 ## Proceso de Instalación (Fork o Clon del Proyecto)
 
