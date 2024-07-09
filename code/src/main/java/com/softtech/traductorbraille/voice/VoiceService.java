@@ -61,7 +61,8 @@ public class VoiceService {
             // Ejecutar el comando
             process = Runtime.getRuntime().exec(cmd);
 
-            try (BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            try (BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                 BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
 
                 String s;
                 if (outputArea != null) {
@@ -72,6 +73,7 @@ public class VoiceService {
                 }
             }
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
