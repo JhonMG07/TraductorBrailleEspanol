@@ -1,4 +1,4 @@
-package com.softtech.traductorbraille.logic;
+package com.softtech.traductorbraille.voice;
 
 import java.io.BufferedReader;
 import java.io.IOException;

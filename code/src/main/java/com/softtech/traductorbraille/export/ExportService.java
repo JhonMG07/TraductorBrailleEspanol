@@ -1,4 +1,4 @@
-package com.softtech.traductorbraille.logic;
+package com.softtech.traductorbraille.export;
 
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -74,7 +74,7 @@ public class ExportService {
              PdfDocument pdfDoc = new PdfDocument(writer)) {
             Document document = new Document(pdfDoc);
 
-            String fontPath = "src/main/java/folder/seguisym.ttf";
+            String fontPath = "src\\main\\java\\com\\softtech\\traductorbraille\\fonts\\seguisym.ttf";
             com.itextpdf.kernel.font.PdfFont font = PdfFontFactory.createFont(fontPath, PdfEncodings.IDENTITY_H, true);
 
             Paragraph paragraph = new Paragraph(textArea.getText());

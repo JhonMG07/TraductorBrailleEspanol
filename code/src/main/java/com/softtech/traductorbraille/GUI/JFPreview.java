@@ -1,8 +1,8 @@
 package com.softtech.traductorbraille.GUI;
 
-import com.softtech.traductorbraille.logic.Dictionary;
-import com.softtech.traductorbraille.logic.Printer.MirrorPrinter;
-import com.softtech.traductorbraille.logic.Printer.NormalPrinter;
+import com.softtech.traductorbraille.translator.Dictionary;
+import com.softtech.traductorbraille.printer.MirrorPrinter;
+import com.softtech.traductorbraille.printer.NormalPrinter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.print.PrinterException;

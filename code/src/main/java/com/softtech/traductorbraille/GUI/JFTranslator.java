@@ -1,10 +1,10 @@
 package com.softtech.traductorbraille.GUI;
 
-import com.softtech.traductorbraille.logic.Spanish;
-import com.softtech.traductorbraille.logic.Braille;
-import com.softtech.traductorbraille.logic.TranslatorManager;
-import com.softtech.traductorbraille.logic.TextFormatter;
-import com.softtech.traductorbraille.logic.VoiceService;
+import com.softtech.traductorbraille.translator.Spanish;
+import com.softtech.traductorbraille.translator.Braille;
+import com.softtech.traductorbraille.translator.TranslatorManager;
+import com.softtech.traductorbraille.format.TextFormatter;
+import com.softtech.traductorbraille.voice.VoiceService;
 
 import java.awt.Color;
 import java.awt.Dimension;

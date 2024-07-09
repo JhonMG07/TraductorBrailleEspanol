@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.softtech.traductorbraille.logic.Printer;
+package com.softtech.traductorbraille.printer;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -14,25 +14,24 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JPanel;
 
 /**
  *
- * NormalPrinter es la clase implementa la lógica para imprimir un texto
- * braille. de en sentido normal.
+ * MirrorPrinter es la clase que implementa la logica para la impresión de texto
+ * braille en su formato espejo.
  *
  * @since 1.0
  * @version 2.0
  * @author SoftTech
  */
-public class NormalPrinter implements Printer {
+public class MirrorPrinter implements Printer {
 
     /**
-     * Imprime el texto dado en el formato especificado.
+     * Imprime el texto dado en el tamaño de fuente especificado.
      *
      * @param text El texto a imprimir.
-     * @param fontSize El tamaño de la fuente a utilizar para imprimir el texto.
-     * @param fontColor
+     * @param fontSize El tamaño de la fuente para imprimir el texto.
+     * @param fontColor color del texto
      * @throws PrinterException Si ocurre un error durante la impresión.
      */
     @Override
@@ -48,15 +47,15 @@ public class NormalPrinter implements Printer {
      * Crea un objeto Printable para imprimir el contenido.
      *
      * @param content El contenido a imprimir.
-     * @param fontSize El tamaño de la fuente a utilizar.
-     * @return Un objeto Printable configurado para imprimir el contenido dado.
+     * @param fontSize El tamaño de la fuente para el contenido.
+     * @return Un objeto Printable configurado para imprimir el contenido.
      */
     private Printable createPrintable(String content, int fontSize, Color fontColor) {
         return (Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
             Graphics2D g2d = (Graphics2D) graphics;
             g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
             List<String> lines = calculateLines(g2d, content, pageFormat, fontSize);
-            List<List<String>> pages = calculatePages(lines, g2d, pageFormat, fontSize);
+            List<List<String>> pages = calculatePages(lines, g2d, pageFormat);
 
             if (pageIndex < pages.size()) {
                 drawText(g2d, pages.get(pageIndex), pageFormat, fontSize, fontColor);
@@ -68,14 +67,14 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Calcula las líneas de texto a partir del contenido dado, teniendo en
-     * cuenta el formato de página y el tamaño de la fuente.
+     * Calcula las líneas de texto ajustadas a la anchura de la página y el
+     * tamaño de fuente especificados.
      *
      * @param g2d El contexto gráfico 2D.
-     * @param content El contenido a dividir en líneas.
+     * @param content El contenido a ajustar en líneas.
      * @param pageFormat El formato de la página.
      * @param fontSize El tamaño de la fuente.
-     * @return Una lista de líneas de texto.
+     * @return Una lista de líneas de texto ajustadas.
      */
     @Override
     public List<String> calculateLines(Graphics2D g2d, String content, PageFormat pageFormat, int fontSize) {
@@ -89,13 +88,12 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Calcula las líneas de texto para un párrafo dado, considerando el formato
-     * de página.
+     * Calcula las líneas de un párrafo ajustadas a la anchura de la página.
      *
      * @param g2d El contexto gráfico 2D.
-     * @param words Las palabras del párrafo a procesar.
+     * @param words Las palabras del párrafo a ajustar.
      * @param pageFormat El formato de la página.
-     * @return Una lista de líneas de texto.
+     * @return Una lista de líneas de texto ajustadas para el párrafo.
      */
     public List<String> calculateLinesForParagraph(Graphics2D g2d, String[] words, PageFormat pageFormat) {
         List<String> lines = new ArrayList<>();
@@ -111,14 +109,15 @@ public class NormalPrinter implements Printer {
 
     /**
      * Procesa una palabra, agregándola a la línea actual o iniciando una nueva
-     * línea si es necesario.
+     * línea si es necesario. Si la palabra es demasiado larga para caber en la
+     * línea, se divide y se procesa en partes.
      *
      * @param g2d El contexto gráfico 2D.
      * @param word La palabra a procesar.
      * @param pageFormat El formato de la página.
-     * @param currentLine La línea actual de texto.
-     * @param lines La lista de líneas de texto.
-     * @param margin El margen a considerar en el formato de la página.
+     * @param currentLine El StringBuilder que contiene la línea actual.
+     * @param lines La lista de líneas procesadas.
+     * @param margin El margen aplicado a cada lado de la página.
      */
     private void processWord(Graphics2D g2d, String word, PageFormat pageFormat, StringBuilder currentLine, List<String> lines, int margin) {
         while (!word.isEmpty()) {
@@ -137,15 +136,14 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Determina si una palabra es demasiado larga para ajustarse en la línea
-     * actual.
+     * Determina si una palabra es demasiado larga para caber en la línea
+     * actual, considerando los márgenes.
      *
      * @param g2d El contexto gráfico 2D.
-     * @param word La palabra a evaluar.
+     * @param word La palabra a verificar.
      * @param pageFormat El formato de la página.
-     * @param margin El margen a considerar en el formato de la página.
-     * @return true si la palabra no cabe en la línea actual, false en caso
-     * contrario.
+     * @param margin El margen aplicado a cada lado de la página.
+     * @return true si la palabra es demasiado larga; de lo contrario, false.
      */
     private boolean isWordTooLong(Graphics2D g2d, String word, PageFormat pageFormat, int margin) {
         int wordWidth = g2d.getFontMetrics().stringWidth(word);
@@ -154,15 +152,16 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Divide y procesa una palabra que es demasiado larga para ajustarse en la
-     * línea actual.
+     * Divide y procesa una palabra que es demasiado larga para caber en la
+     * línea actual. La palabra se divide en un punto donde la primera parte
+     * cabe en la línea, y el resto se devuelve para procesamiento adicional.
      *
      * @param g2d El contexto gráfico 2D.
-     * @param word La palabra a dividir.
+     * @param word La palabra a dividir y procesar.
      * @param pageFormat El formato de la página.
-     * @param currentLine La línea actual de texto.
-     * @param lines La lista de líneas de texto.
-     * @param margin El margen a considerar en el formato de la página.
+     * @param currentLine El StringBuilder que contiene la línea actual.
+     * @param lines La lista de líneas procesadas.
+     * @param margin El margen aplicado a cada lado de la página.
      * @return La parte restante de la palabra después de la división.
      */
     private String splitAndProcessLongWord(Graphics2D g2d, String word, PageFormat pageFormat, StringBuilder currentLine, List<String> lines, int margin) {
@@ -177,11 +176,11 @@ public class NormalPrinter implements Printer {
      * la línea actual y la palabra a agregar.
      *
      * @param g2d El contexto gráfico 2D.
-     * @param currentLine La línea actual de texto.
-     * @param word La palabra a evaluar.
+     * @param currentLine El StringBuilder que contiene la línea actual.
+     * @param word La palabra a verificar.
      * @param pageFormat El formato de la página.
-     * @param margin El margen a considerar en el formato de la página.
-     * @return true si se debe iniciar una nueva línea, false en caso contrario.
+     * @param margin El margen aplicado a cada lado de la página.
+     * @return true si se debe iniciar una nueva línea; de lo contrario, false.
      */
     private boolean shouldStartNewLine(Graphics2D g2d, StringBuilder currentLine, String word, PageFormat pageFormat, int margin) {
         int lineWidth = g2d.getFontMetrics().stringWidth(currentLine + " " + word);
@@ -189,9 +188,9 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Agrega una palabra a la línea actual de texto.
+     * Agrega una palabra a la línea actual.
      *
-     * @param currentLine La línea actual de texto.
+     * @param currentLine El StringBuilder que contiene la línea actual.
      * @param word La palabra a agregar.
      */
     private void addWordToLine(StringBuilder currentLine, String word) {
@@ -202,10 +201,10 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Finaliza la línea actual de texto, agregándola a la lista de líneas.
+     * Finaliza la línea actual, agregándola a la lista de líneas procesadas.
      *
-     * @param currentLine La línea actual de texto.
-     * @param lines La lista de líneas de texto.
+     * @param currentLine El StringBuilder que contiene la línea actual.
+     * @param lines La lista de líneas procesadas.
      */
     private void finalizeLine(StringBuilder currentLine, List<String> lines) {
         if (currentLine.length() > 0) {
@@ -214,12 +213,12 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Encuentra el índice en el que se debe dividir una palabra para que ajuste
-     * en la línea actual.
+     * Encuentra el índice en el que una palabra debe dividirse para que la
+     * primera parte quepa en la línea actual.
      *
      * @param g2d El contexto gráfico 2D.
      * @param word La palabra a dividir.
-     * @param availableWidth El ancho disponible para la palabra.
+     * @param availableWidth El ancho disponible para la palabra en la línea.
      * @return El índice en el que dividir la palabra.
      */
     private int findSplitIndex(Graphics2D g2d, String word, int availableWidth) {
@@ -231,8 +230,7 @@ public class NormalPrinter implements Printer {
     }
 
     /**
-     * Dibuja el texto en la página utilizando el formato y tamaño de fuente
-     * especificados.
+     * Dibuja el texto ajustado en la página especificada.
      *
      * @param g2d El contexto gráfico 2D.
      * @param lines Las líneas de texto a dibujar.
@@ -245,28 +243,52 @@ public class NormalPrinter implements Printer {
         g2d.setFont(new Font("Dialog", Font.PLAIN, fontSize));
         g2d.setColor(fontColor);
         int lineHeight = g2d.getFontMetrics().getHeight();
-        int y = lineHeight;
+        int y = calculateStartingY(lines, lineHeight);
         int margin = 50;
         for (String line : lines) {
-            int lineWidth = g2d.getFontMetrics().stringWidth(line);
-            int x = margin;
+            int x = calculateXForLine(g2d, line, pageFormat, margin);
             g2d.drawString(line, x, y);
-            y += lineHeight;
+            y -= lineHeight;
         }
     }
 
     /**
-     * Calcula las páginas basándose en las líneas de texto, el formato de
-     * página y el tamaño de la fuente.
+     * Calcula la posición inicial en Y para comenzar a dibujar el texto, basado
+     * en el número de líneas y la altura de línea.
      *
-     * @param lines Las líneas de texto.
-     * @param g2d El contexto gráfico 2D.
-     * @param pageFormat El formato de la página.
-     * @param fontSize El tamaño de la fuente.
-     * @return Una lista de páginas, cada una representada por una lista de
-     * líneas de texto.
+     * @param lines Las líneas de texto a dibujar.
+     * @param lineHeight La altura de una línea de texto.
+     * @return La posición en Y para comenzar a dibujar el texto.
      */
-    private List<List<String>> calculatePages(List<String> lines, Graphics2D g2d, PageFormat pageFormat, int fontSize) {
+    private int calculateStartingY(List<String> lines, int lineHeight) {
+        return lineHeight * lines.size();
+    }
+
+    /**
+     * Calcula la posición en X para dibujar una línea de texto, ajustando el
+     * margen derecho.
+     *
+     * @param g2d El contexto gráfico 2D.
+     * @param line La línea de texto a dibujar.
+     * @param pageFormat El formato de la página.
+     * @param margin El margen derecho a ajustar.
+     * @return La posición en X para comenzar a dibujar la línea de texto.
+     */
+    private int calculateXForLine(Graphics2D g2d, String line, PageFormat pageFormat, int margin) {
+        int lineWidth = g2d.getFontMetrics().stringWidth(line);
+        return (int) (pageFormat.getImageableWidth() - lineWidth - margin);
+    }
+
+    /**
+     * Calcula las páginas de texto basadas en el contenido, el contexto
+     * gráfico, el formato de página y el tamaño de fuente.
+     *
+     * @param lines Las líneas de texto a organizar en páginas.
+     * @param g2d El contexto gráfico 2D.
+     * @param fontSize El tamaño de la fuente.
+     * @return Una lista de páginas, cada una es una lista de líneas de texto.
+     */
+    private List<List<String>> calculatePages(List<String> lines, Graphics2D g2d, PageFormat pageFormat) {
         List<List<String>> pages = new ArrayList<>();
         int lineHeight = g2d.getFontMetrics().getHeight();
         int linesPerPage = (int) (pageFormat.getImageableHeight() / lineHeight);
@@ -278,5 +300,4 @@ public class NormalPrinter implements Printer {
         }
         return pages;
     }
-
 }

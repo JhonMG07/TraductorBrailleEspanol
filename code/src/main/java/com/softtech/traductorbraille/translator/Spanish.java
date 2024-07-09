@@ -1,4 +1,4 @@
-package com.softtech.traductorbraille.logic;
+package com.softtech.traductorbraille.translator;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.softtech.traductorbraille.logic;
+package com.softtech.traductorbraille.format;
 
 import java.awt.Color;
 import java.awt.Font;

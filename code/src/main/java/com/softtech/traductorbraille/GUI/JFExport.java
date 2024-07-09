@@ -1,6 +1,6 @@
 package com.softtech.traductorbraille.GUI;
 
-import com.softtech.traductorbraille.logic.ExportService;
+import com.softtech.traductorbraille.export.ExportService;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
