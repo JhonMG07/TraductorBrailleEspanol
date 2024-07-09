@@ -1,2 +1,0 @@
-# ADVERTENCIA
-Este directorio contiene las versiones del código pasado, por fines académicos se encuentra este directorio, se recomienda su uso con precaución dado que puede ser incompatible con las versiones mas actuales del código por lo que el equipo de desarrollo encamina a los interesados a usar siempre las versiones estables del programa en la rama master y las ramas de desarrollo en integración.
