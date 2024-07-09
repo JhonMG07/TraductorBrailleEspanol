@@ -791,8 +791,8 @@ public class JFTranslator extends javax.swing.JFrame {
             return;
         }
         String texto = jTBraille.getText();
-        JFPreview exportFrame = new JFPreview(texto, 20); // Crear una instancia de JFExport
-        exportFrame.setVisible(true); 
+        //JFPreview exportFrame = new JFPreview(texto, 20); // Crear una instancia de JFExport
+        //exportFrame.setVisible(true); 
     }//GEN-LAST:event_jMImprimirActionPerformed
 
     private void jTASpanishFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTASpanishFocusGained

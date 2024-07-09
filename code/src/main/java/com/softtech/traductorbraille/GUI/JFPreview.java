@@ -1,10 +1,10 @@
 package com.softtech.traductorbraille.GUI;
 
-import com.softtech.traductorbraille.logic.BrailleDictionary;
+import com.softtech.traductorbraille.logic.Dictionary;
 import com.softtech.traductorbraille.logic.Printer.MirrorPrinter;
 import com.softtech.traductorbraille.logic.Printer.NormalPrinter;
-import com.softtech.traductorbraille.logic.Translator;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.print.PrinterException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,21 +26,29 @@ public class JFPreview extends javax.swing.JFrame {
     private int fontSize;
     private final NormalPrinter normal;
     private final MirrorPrinter mirror;
-    private final BrailleDictionary mirrorBraille;
+    private final Dictionary mirrorBraille;
+    private Color fontColor;
 
     /**
      * Crea una nueva instancia de JFPreview.
      *
      * @param texto El texto a previsualizar e imprimir.
      * @param size
+     * @param selectedColor
+     * @param isBraille
      */
-    public JFPreview(String texto, int size) {
+    public JFPreview(String texto, int size, Color selectedColor, boolean isBraille) {
         initComponents();
         this.text = texto;
         this.fontSize = size;
         normal = new NormalPrinter();
         mirror = new MirrorPrinter();
-        mirrorBraille = new BrailleDictionary();
+        if (!isBraille){
+            cmbImprimir.setSelectedIndex(1);
+            cmbImprimir.setEnabled(isBraille);
+        } 
+        mirrorBraille = new Dictionary();
+        fontColor = selectedColor;
         mirrorText = mirrorBraille.generateBrailleMirror(texto);
         previewText();
         setLocationRelativeTo(null);
@@ -49,9 +57,9 @@ public class JFPreview extends javax.swing.JFrame {
     private void previewText() {
         JPanel contentPanel;
         if (cmbImprimir.getSelectedIndex() == 0) {
-            contentPanel = mirror.createContentPanel(mirrorText, fontSize);
+            contentPanel = mirror.createContentPanel(mirrorText, fontSize, fontColor);
         } else {
-            contentPanel = normal.createContentPanel(text, fontSize);
+            contentPanel = normal.createContentPanel(text, fontSize, fontColor);
         }
         addToMainContainer(contentPanel);
     }
@@ -73,19 +81,18 @@ public class JFPreview extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         JPPreview = new javax.swing.JPanel();
         jBImprimir = new javax.swing.JButton();
         jBCancelar = new javax.swing.JButton();
-        lb = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         cmbImprimir = new javax.swing.JComboBox<>();
+        lb = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Brailling");
+        setBackground(new java.awt.Color(153, 153, 153));
         setResizable(false);
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel1.setText("Vista Previa");
 
         JPPreview.setPreferredSize(new java.awt.Dimension(470, 440));
 
@@ -118,17 +125,51 @@ public class JFPreview extends javax.swing.JFrame {
             }
         });
 
-        lb.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lb.setForeground(new java.awt.Color(102, 102, 102));
-        lb.setText("Tipo de Impresión :");
+        jPanel1.setBackground(new java.awt.Color(102, 102, 102));
+        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
 
-        cmbImprimir.setBackground(new java.awt.Color(204, 204, 204));
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel1.setText("Braillingo - Vista Previa");
+
         cmbImprimir.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "espejo", "normal" }));
         cmbImprimir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbImprimirActionPerformed(evt);
             }
         });
+
+        lb.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lb.setForeground(new java.awt.Color(153, 153, 153));
+        lb.setText("Tipo de Impresión :");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(102, 102, 102)
+                        .addComponent(lb)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cmbImprimir, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(182, 182, 182)
+                        .addComponent(jLabel1)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(24, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cmbImprimir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lb))
+                .addGap(17, 17, 17))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -141,32 +182,18 @@ public class JFPreview extends javax.swing.JFrame {
                 .addComponent(jBImprimir)
                 .addGap(76, 76, 76))
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(232, 232, 232)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(64, 64, 64)
-                        .addComponent(lb)
-                        .addGap(18, 18, 18)
-                        .addComponent(cmbImprimir, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(JPPreview, javax.swing.GroupLayout.PREFERRED_SIZE, 532, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addGap(33, 33, 33)
+                .addComponent(JPPreview, javax.swing.GroupLayout.PREFERRED_SIZE, 532, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(21, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lb)
-                    .addComponent(cmbImprimir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(JPPreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jBCancelar)
                     .addComponent(jBImprimir))
@@ -179,9 +206,9 @@ public class JFPreview extends javax.swing.JFrame {
     private void jBImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBImprimirActionPerformed
         try {
             if (cmbImprimir.getSelectedIndex() == 0) {
-                mirror.print(mirrorText, fontSize);
+                mirror.print(mirrorText, fontSize, fontColor);
             } else {
-                normal.print(text, fontSize);
+                normal.print(text, fontSize, fontColor);
             }
         } catch (PrinterException ex) {
             JOptionPane.showMessageDialog(null, "Error al imprimir: " + ex.getMessage(), "Error de Impresión", JOptionPane.ERROR_MESSAGE);
@@ -203,6 +230,7 @@ public class JFPreview extends javax.swing.JFrame {
     private javax.swing.JButton jBCancelar;
     private javax.swing.JButton jBImprimir;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lb;
     // End of variables declaration//GEN-END:variables
 }

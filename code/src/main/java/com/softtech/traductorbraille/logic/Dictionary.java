@@ -15,6 +15,7 @@ public class Dictionary {
     private static Dictionary instance;
     private static final Map<String, String> brailleMap = new HashMap<>();
     private static final Map<String, String> spanishMap = new HashMap<>();
+    private static final Map<Character, Character> brailleMirrorMap = new HashMap<>();
 
     static {
         brailleMap.put("\t", "\t");
@@ -81,7 +82,49 @@ public class Dictionary {
         brailleMap.put("3456 125", "8");
         brailleMap.put("3456 24", "9");
         brailleMap.put("3456 245", "0");
-
+        
+        brailleMirrorMap.put('⠁', '⠈'); 
+        brailleMirrorMap.put('⠃', '⠘');  
+        brailleMirrorMap.put('⠉', '⠉'); 
+        brailleMirrorMap.put('⠙', '⠋');  
+        brailleMirrorMap.put('⠑', '⠊'); 
+        brailleMirrorMap.put('⠋', '⠙');  
+        brailleMirrorMap.put('⠦', '⠴');  
+        brailleMirrorMap.put('⠊', '⠑'); 
+        brailleMirrorMap.put('⠚', '⠓');
+        brailleMirrorMap.put('⠓', '⠚');  
+        brailleMirrorMap.put('⠅', '⠨');       
+        brailleMirrorMap.put('⠇','⠸');              
+        brailleMirrorMap.put('⠍', '⠩'); 
+        brailleMirrorMap.put('⠝', '⠫');  
+        brailleMirrorMap.put('⠕', '⠪');  
+        brailleMirrorMap.put('⠏', '⠹'); 
+        brailleMirrorMap.put('⠟','⠻');
+        brailleMirrorMap.put('⠗', '⠺'); 
+        brailleMirrorMap.put('⠎', '⠱'); 
+        brailleMirrorMap.put('⠞','⠳');
+        brailleMirrorMap.put('⠥', '⠬'); 
+        brailleMirrorMap.put('⠧', '⠼'); 
+        brailleMirrorMap.put('⠺', '⠗'); 
+        brailleMirrorMap.put('⠭', '⠭'); 
+        brailleMirrorMap.put('⠽','⠯');  
+        brailleMirrorMap.put('⠵', '⠮'); 
+        brailleMirrorMap.put('⠷','⠾');
+        brailleMirrorMap.put('⠾','⠷');
+        brailleMirrorMap.put('⠬', '⠥');
+        brailleMirrorMap.put('⠮','⠵');
+        brailleMirrorMap.put('⠌','⠡');     
+        brailleMirrorMap.put('⠼','⠧');
+        brailleMirrorMap.put('⠂', '⠐');
+        brailleMirrorMap.put('⠦', '⠴'); 
+        brailleMirrorMap.put('⠖', '⠲'); 
+        brailleMirrorMap.put('⠲', '⠖'); 
+        brailleMirrorMap.put('⠆', '⠰');        
+        brailleMirrorMap.put('⠜','⠣'); 
+        brailleMirrorMap.put('⠣','⠜'); 
+        brailleMirrorMap.put('⠄','⠠'); 
+        brailleMirrorMap.put('⠢','⠔'); 
+        
         createUppercaseAlphabet();
         createReverseMap();
     }
@@ -111,8 +154,7 @@ public class Dictionary {
         }
     }
 
-    private Dictionary() {
-    }
+
 
     public static Dictionary getInstance() {
         if (instance == null) {
@@ -149,6 +191,22 @@ public class Dictionary {
      */
     public boolean isExistInBrailleMap(String code) {
         return !brailleMap.getOrDefault(code, "??").equals("??");
+    }
+    
+            /**
+     * transformar texto braille en su forma expejo
+     * @param brailleText
+     * @return braille en espejo
+     */
+    public String generateBrailleMirror(String brailleText) {
+        String reversedText = new StringBuilder(brailleText).reverse().toString();
+        StringBuilder mirroredText = new StringBuilder();
+        for (char ch : reversedText.toCharArray()) {
+            mirroredText.append(brailleMirrorMap.getOrDefault(ch, ch));
+        }
+
+
+        return mirroredText.toString();
     }
 
 }
