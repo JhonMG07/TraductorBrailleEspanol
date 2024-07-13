@@ -25,6 +25,7 @@ El propósito de este manual es guiar a los usuarios a través del proceso de in
 
 - Java Development Kit (JDK) 17 o superior
 - Apache Maven 3.8+ para gestión de dependencias
+- Python 3.12 para gestión de funcionalidades por voz
 
 ## Instalación de Dependencias Adicionales
 Para que el proyecto funcione correctamente, es necesario instalar algunas dependencias de Python. Ejecuta las siguientes sentencias en la terminal o línea de comandos:
@@ -53,7 +54,7 @@ Si prefieres utilizar GitHub Desktop para clonar el repositorio y trabajar desde
 
 2. **Configuración y Compilación:**
 
-   - Una vez clonado, abre NetBeans IDE en tu computadora.
+   - Una vez clonado, abre ***NetBeans IDE*** en tu computadora.
    - Importa el proyecto clonado a NetBeans:
      - Ve a `File` (Archivo) > `Open Project` (Abrir Proyecto).
      - Navega hasta la ubicación donde clonaste el repositorio y selecciona el archivo de proyecto de NetBeans (`pom.xml`).
